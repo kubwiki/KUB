@@ -1,0 +1,434 @@
+{
+ "src": "~/Videos/mein-querformat-video.mp4",
+ "out": "split-reel.mp4",
+ "transcript": "transcript.json",
+ "pieces": [
+  [
+   0.45,
+   46.3
+  ]
+ ],
+ "header": {
+  "left": "DEIN NAME",
+  "right": "Realtalk"
+ },
+ "keywords": [
+  "Zeit",
+  "Geld",
+  "KI",
+  "wertvoller"
+ ],
+ "fixes": {
+  "Tools": "-Tools"
+ },
+ "grain": 6,
+ "fps": 25,
+ "punch_in": true,
+ "images": {
+  "rest": "bilder/restaurant.jpg",
+  "kino": "bilder/kino.jpg",
+  "park": "bilder/park.jpg"
+ },
+ "scenes": [
+  {
+   "from": 0,
+   "elements": [
+    {
+     "type": "eyebrow",
+     "text": "Die Frage, die jeder stellt",
+     "y": 190
+    },
+    {
+     "type": "serif",
+     "text": "Wie kann ich mit KI",
+     "at": 0.56,
+     "y": 420,
+     "size": 96
+    },
+    {
+     "type": "big",
+     "text": "GELD",
+     "at": 2.08,
+     "y": 660,
+     "size": 250
+    },
+    {
+     "type": "slam",
+     "text": "VERDIENEN?",
+     "at": 2.78,
+     "y": 880,
+     "size": 240
+    }
+   ]
+  },
+  {
+   "from": 3.88,
+   "elements": [
+    {
+     "type": "eyebrow",
+     "text": "Das Problem",
+     "y": 190
+    },
+    {
+     "type": "serif",
+     "text": "KI kostet ja Geld.",
+     "at": 3.88,
+     "y": 450,
+     "size": 96
+    },
+    {
+     "type": "serif",
+     "text": "Also muss ich das Geld",
+     "at": 5.78,
+     "y": 560,
+     "size": 72,
+     "color": "dim"
+    },
+    {
+     "type": "big",
+     "text": "WIEDER EINSPIELEN.",
+     "at": 6.94,
+     "y": 830,
+     "size": 190
+    }
+   ]
+  },
+  {
+   "from": 8.2,
+   "elements": [
+    {
+     "type": "eyebrow",
+     "text": "Mein Tipp",
+     "y": 190
+    },
+    {
+     "type": "slam",
+     "text": "ZEIT",
+     "at": 9.5,
+     "y": 520,
+     "size": 340
+    },
+    {
+     "type": "serif",
+     "text": "ist wertvoller als",
+     "at": 10.38,
+     "y": 640,
+     "size": 84,
+     "color": "dim"
+    },
+    {
+     "type": "big",
+     "text": "GELD.",
+     "at": 11.32,
+     "y": 870,
+     "size": 240,
+     "outline": true
+    }
+   ]
+  },
+  {
+   "from": 13.28,
+   "elements": [
+    {
+     "type": "eyebrow",
+     "text": "Mein Tipp",
+     "y": 190
+    },
+    {
+     "type": "stamp",
+     "text": "ZUERST",
+     "at": 15.88,
+     "x": 870,
+     "y": 310,
+     "size": 40,
+     "rot": -8
+    },
+    {
+     "type": "serif",
+     "text": "Wenn du KI-Tools nutzt,",
+     "at": 13.36,
+     "y": 440,
+     "size": 84
+    },
+    {
+     "type": "serif",
+     "text": "frag dich zuerst,",
+     "at": 15.24,
+     "y": 550,
+     "size": 92
+    },
+    {
+     "type": "serif",
+     "text": "wie sie dir im Alltag helfen,",
+     "at": 17.02,
+     "y": 640,
+     "size": 64,
+     "color": "dim"
+    },
+    {
+     "type": "slam",
+     "text": "ZEIT ZU SPAREN.",
+     "at": 18.9,
+     "y": 850,
+     "size": 230
+    }
+   ]
+  },
+  {
+   "from": 20.66,
+   "elements": [
+    {
+     "type": "eyebrow",
+     "text": "Im Alltag",
+     "y": 190
+    },
+    {
+     "type": "serif",
+     "text": "Du bezahlst so viel Geld",
+     "at": 20.76,
+     "y": 440,
+     "size": 92
+    },
+    {
+     "type": "serif",
+     "text": "für Dinge,",
+     "at": 23.28,
+     "y": 560,
+     "size": 92
+    },
+    {
+     "type": "big",
+     "text": "OHNE GELD ZURÜCK.",
+     "at": 24.06,
+     "y": 830,
+     "size": 200
+    }
+   ]
+  },
+  {
+   "from": 25.3,
+   "elements": [
+    {
+     "type": "photo",
+     "image": "rest",
+     "at": 25.44,
+     "dim": 60,
+     "zoom": [
+      1.0,
+      1.1
+     ]
+    },
+    {
+     "type": "big",
+     "text": "RESTAURANT.",
+     "at": 25.44,
+     "y": 840,
+     "size": 170
+    },
+    {
+     "type": "photo",
+     "image": "kino",
+     "at": 26.34,
+     "dim": 60,
+     "zoom": [
+      1.0,
+      1.1
+     ]
+    },
+    {
+     "type": "big",
+     "text": "KINO.",
+     "at": 26.34,
+     "y": 840,
+     "size": 170
+    },
+    {
+     "type": "photo",
+     "image": "park",
+     "at": 27.14,
+     "dim": 60,
+     "zoom": [
+      1.0,
+      1.1
+     ]
+    },
+    {
+     "type": "big",
+     "text": "ERLEBNISPARK.",
+     "at": 27.14,
+     "y": 840,
+     "size": 170
+    },
+    {
+     "type": "stamp",
+     "text": "FÜR WAS AUCH IMMER",
+     "at": 27.92,
+     "x": 640,
+     "y": 300,
+     "size": 36,
+     "rot": -7
+    }
+   ]
+  },
+  {
+   "from": 28.44,
+   "elements": [
+    {
+     "type": "eyebrow",
+     "text": "Im Alltag",
+     "y": 190
+    },
+    {
+     "type": "serif",
+     "text": "Du bezahlst.",
+     "at": 28.84,
+     "y": 420,
+     "size": 96
+    },
+    {
+     "type": "serif",
+     "text": "Und was bekommst du zurück?",
+     "at": 29.56,
+     "y": 515,
+     "size": 64,
+     "color": "dim"
+    },
+    {
+     "type": "big",
+     "text": "EINE SCHÖNE",
+     "at": 31.02,
+     "y": 700,
+     "size": 170
+    },
+    {
+     "type": "slam",
+     "text": "ZEIT.",
+     "at": 31.2,
+     "y": 900,
+     "size": 250
+    }
+   ]
+  },
+  {
+   "from": 32.8,
+   "elements": [
+    {
+     "type": "eyebrow",
+     "text": "Und bei KI?",
+     "y": 190
+    },
+    {
+     "type": "stamp",
+     "text": "DARUM GEHT'S",
+     "at": 37.8,
+     "x": 820,
+     "y": 330,
+     "size": 38,
+     "rot": -7
+    },
+    {
+     "type": "serif",
+     "text": "Bei KI ist es so:",
+     "at": 33.5,
+     "y": 400,
+     "size": 80,
+     "color": "dim"
+    },
+    {
+     "type": "serif",
+     "text": "Du bezahlst.",
+     "at": 34.56,
+     "y": 500,
+     "size": 96
+    },
+    {
+     "type": "serif",
+     "text": "Und was bekommst du zurück?",
+     "at": 35.4,
+     "y": 590,
+     "size": 64,
+     "color": "dim"
+    },
+    {
+     "type": "slam",
+     "text": "ZEIT!",
+     "at": 36.62,
+     "y": 890,
+     "size": 300
+    }
+   ]
+  },
+  {
+   "from": 39.04,
+   "elements": [
+    {
+     "type": "eyebrow",
+     "text": "Und erst dann",
+     "y": 190
+    },
+    {
+     "type": "stamp",
+     "text": "SCHRITT 2",
+     "at": 39.18,
+     "x": 860,
+     "y": 320,
+     "size": 40,
+     "rot": -8
+    },
+    {
+     "type": "serif",
+     "text": "Im zweiten Schritt",
+     "at": 39.56,
+     "y": 460,
+     "size": 92
+    },
+    {
+     "type": "big",
+     "text": "GELD",
+     "at": 40.78,
+     "y": 680,
+     "size": 220
+    },
+    {
+     "type": "slam",
+     "text": "VERDIENEN.",
+     "at": 41.18,
+     "y": 890,
+     "size": 240
+    }
+   ]
+  },
+  {
+   "from": 42.36,
+   "elements": [
+    {
+     "type": "eyebrow",
+     "text": "Jetzt du",
+     "y": 190
+    },
+    {
+     "type": "serif",
+     "text": "Deine Meinung dazu?",
+     "at": 43.4,
+     "y": 450,
+     "size": 92
+    },
+    {
+     "type": "slam",
+     "text": "IN DIE KOMMENTARE.",
+     "at": 44.58,
+     "y": 760,
+     "size": 190
+    },
+    {
+     "type": "small",
+     "text": "Ich bin gespannt.",
+     "at": 45.26,
+     "y": 850,
+     "color": "accent"
+    }
+   ]
+  }
+ ],
+ "_hinweis": "Alle Zeiten = Sekunden im ORIGINAL. pieces = Stuecke [Start, Ende]. Jede Szene gilt ab from bis zur naechsten. Elemente erscheinen bei at (= Sekunde des gesprochenen Wortes). Typen: eyebrow, serif, big, slam, small, stamp, photo, tiles, ranking, checklist, strike. Optional: colors, grain, fps, punch_in, voice_src."
+}
