@@ -1,0 +1,135 @@
+{
+ "home": {
+  "name": "Home",
+  "path": "/",
+  "title": "AuTeiZu: Auto, Teile & Zubehör einfach erklärt",
+  "desc": "AuTeiZu hilft Autofahrern in Deutschland, Reifen, Zubehör und Nachrüstungen verständlich und unabhängig einzuordnen.",
+  "len": 25963
+ },
+ "ratgeber": {
+  "name": "Ratgeber",
+  "path": "/ratgeber",
+  "title": "Ratgeber für Auto, Teile & Zubehör | AuTeiZu",
+  "desc": "Alle veröffentlichten AuTeiZu Ratgeber zu Reifen, Nachrüstung, Pflege und praktischen Autoentscheidungen.",
+  "len": 9983
+ },
+ "reifen-raeder": {
+  "name": "Reifen & Räder",
+  "path": "/reifen-raeder",
+  "title": "Reifen & Räder: Ratgeber & Entscheidungshilfe | AuTeiZu",
+  "desc": "Sommer, Winter oder Ganzjahr? Felgen, Reifendruck und Reifengrößen ohne Rätselraten einordnen.",
+  "len": 8909
+ },
+ "zubehoer-nachruestung": {
+  "name": "Zubehör & Nachrüstung",
+  "path": "/zubehoer-nachruestung",
+  "title": "Zubehör & Nachrüstung: Ratgeber & Entscheidungshilfe | AuTeiZu",
+  "desc": "Dashcams, Rückfahrkameras, Anhängerkupplungen, CarPlay und Diagnose verständlich vor dem Kauf prüfen.",
+  "len": 9812
+ },
+ "pflege-wartung": {
+  "name": "Pflege & Wartung",
+  "path": "/pflege-wartung",
+  "title": "Pflege & Wartung: Ratgeber & Entscheidungshilfe | AuTeiZu",
+  "desc": "Praktische Grundlagen für Reinigung, Pflege und Wartung, die dein Fahrzeug im Alltag wirklich braucht.",
+  "len": 8468
+ },
+ "reifen-check": {
+  "name": "Reifen-Check",
+  "path": "/reifen-check",
+  "title": "Reifen-Check: Welche Richtung passt? | AuTeiZu",
+  "desc": "Der AuTeiZu Reifen-Check zeigt, welche Reifenart und Eigenschaften du anhand deines Fahrprofils näher prüfen solltest.",
+  "len": 8867
+ },
+ "reifen-raeder__ganzjahresreifen-oder-sommer-und-winterreifen": {
+  "name": "Ganzjahresreifen",
+  "path": "/reifen-raeder/ganzjahresreifen-oder-sommer-und-winterreifen",
+  "title": "Ganzjahresreifen oder Sommer- und Winterreifen? | AuTeiZu",
+  "desc": "Ganzjahresreifen oder saisonaler Wechsel: Mit Fahrprofil, Klima und Laufleistung die passende Richtung für dein Auto prüfen.",
+  "len": 18685
+ },
+ "reifen-raeder__reifengroesse-225-45-r17": {
+  "name": "Reifengröße 225/45 R17",
+  "path": "/reifen-raeder/reifengroesse-225-45-r17",
+  "title": "225/45 R17 richtig lesen: Reifenbezeichnung erklärt | AuTeiZu",
+  "desc": "225/45 R17 einfach erklärt: Was Breite, Querschnitt, Bauart und Felgendurchmesser an der Reifenflanke bedeuten.",
+  "len": 16300
+ },
+ "zubehoer-nachruestung__anhaengerkupplung-nachruesten-kosten-und-moeglichkeiten": {
+  "name": "Anhängerkupplung nachrüsten",
+  "path": "/zubehoer-nachruestung/anhaengerkupplung-nachruesten-kosten-und-moeglichkeiten",
+  "title": "Anhängerkupplung nachrüsten: Optionen prüfen | AuTeiZu",
+  "desc": "Starre, abnehmbare oder schwenkbare Anhängerkupplung: So prüfst du Nutzung, Fahrzeugfreigabe, Elektrik und Werkstattangebot.",
+  "len": 17004
+ },
+ "zubehoer-nachruestung__dashcam-kaufen-was-brauche-ich-wirklich": {
+  "name": "Dashcam kaufen",
+  "path": "/zubehoer-nachruestung/dashcam-kaufen-was-brauche-ich-wirklich",
+  "title": "Dashcam kaufen: Funktionen und Datenschutz prüfen | AuTeiZu",
+  "desc": "Dashcam vor dem Kauf einordnen: Aufnahmeart, Sichtfeld, Bedienung, Stromversorgung und Datenschutz in Deutschland prüfen.",
+  "len": 16555
+ },
+ "pflege-wartung__autopflege-grundausstattung": {
+  "name": "Autopflege Grundausstattung",
+  "path": "/pflege-wartung/autopflege-grundausstattung",
+  "title": "Autopflege Grundausstattung: sinnvoll starten | AuTeiZu",
+  "desc": "Autopflege für Einsteiger: Mit einer schlanken Grundausstattung Lack, Glas, Innenraum und Felgen sinnvoll pflegen.",
+  "len": 16434
+ },
+ "ueber-auteizu": {
+  "name": "Über AuTeiZu",
+  "path": "/ueber-auteizu",
+  "title": "Über AuTeiZu: So arbeiten die Ratgeber",
+  "desc": "AuTeiZu erklärt transparent, wie Produkte, Quellen, redaktionelle Einschätzungen und Affiliate-Partnerschaften eingeordnet werden.",
+  "len": 5816
+ },
+ "autor__willi-kilian": {
+  "name": "Autor Willi Kilian",
+  "path": "/autor/willi-kilian",
+  "title": "Willi Kilian: Autor bei AuTeiZu",
+  "desc": "Willi Kilian steht hinter AuTeiZu. Transparenz über Autor, Quellen und Arbeitsweise ist Teil der redaktionellen Einordnung.",
+  "len": 6071
+ },
+ "kontakt": {
+  "name": "Kontakt",
+  "path": "/kontakt",
+  "title": "Kontakt: Betreiberdaten vorbereiten | AuTeiZu",
+  "desc": "Die Kontaktseite von AuTeiZu ist für echte Betreiber- und Kontaktangaben vorbereitet.",
+  "len": 3929
+ },
+ "impressum": {
+  "name": "Impressum",
+  "path": "/impressum",
+  "title": "Impressum | AuTeiZu",
+  "desc": "Impressum von AuTeiZu mit Anbieter-, Kontakt- und Umsatzsteuerangaben.",
+  "len": 4551
+ },
+ "datenschutz": {
+  "name": "Datenschutz",
+  "path": "/datenschutz",
+  "title": "Datenschutzerklärung | AuTeiZu",
+  "desc": "Datenschutzhinweise von AuTeiZu zu Hosting, Server-Logs, Kontakt, Newsletter, Affiliate-Links und deinen Rechten.",
+  "len": 6882
+ },
+ "affiliate-hinweis": {
+  "name": "Affiliate-Hinweis",
+  "path": "/affiliate-hinweis",
+  "title": "Affiliate Hinweis: Transparent erklärt | AuTeiZu",
+  "desc": "Wie AuTeiZu Affiliate-Links kennzeichnet und redaktionelle Einordnung von Partnerschaften trennt.",
+  "len": 4137
+ },
+ "cookie-einstellungen": {
+  "name": "Cookie-Einstellungen",
+  "path": "/cookie-einstellungen",
+  "title": "Cookie Einstellungen | AuTeiZu",
+  "desc": "Hinweise zu technisch notwendigen Cookies und optionalen Diensten bei AuTeiZu.",
+  "len": 3660
+ },
+ "404": {
+  "name": "404",
+  "path": "/404",
+  "title": "Seite nicht gefunden | AuTeiZu",
+  "desc": "",
+  "len": 3604
+ }
+}
