@@ -3,3 +3,15 @@
 /* Condoo-Anpassungen */
 .condoo-form-slot{margin-top:4px;max-width:560px}
 .condoo-form-slot--kontakt{max-width:none}
+
+/* Condoo-Layout-Fix */
+.site-shell{width:100%;align-self:stretch}
+.condoo-form-slot h1{display:none}
+/* Condoo embed.css H1-Fix: Variablen auf AuTeiZu-Werte setzen */
+h1{--h1-color:inherit-from-parent;--h1-text-transform:none;--h1-font-weight:500;--h1-font-family:var(--serif)}
+h1{--h1-font-size:1em}
+h1{--h1-font-family:var(--serif);--h1-font-weight:500}
+.home-hero h1{--h1-font-size:clamp(4.1rem,8vw,8.2rem)}
+.category-hero h1, .page-intro h1, .tyre-check-hero h1, .guide-header h1, .author-page h1, .contact-page h1, .legal-page h1, .editorial-page h1, .not-found h1{--h1-font-size:clamp(3.3rem,6vw,6.5rem)}
+@media (max-width:760px){.home-hero h1{--h1-font-size:clamp(3.75rem,16vw,5.4rem)}}
+@media (max-width:760px){.category-hero h1, .page-intro h1, .tyre-check-hero h1, .guide-header h1, .author-page h1, .contact-page h1, .legal-page h1, .editorial-page h1, .not-found h1{--h1-font-size:3.7rem}}
