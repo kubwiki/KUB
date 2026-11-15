@@ -1,0 +1,19 @@
+{
+  "toolName": "Willis Screen Recorder",
+  "deinName": "Affiliwilli",
+  "farbe": "#1D4ED8",
+  "ueberMich": "Ich bin Willi, Unternehmer und seit 12 Jahren im Affiliate-Marketing unterwegs. Ich zeige Einsteigern ab 50, wie sie online etwas dazuverdienen können – einfach erklärt und Schritt für Schritt, ganz ohne Technik-Kauderwelsch.",
+  "newsletterUeber": "Online dazuverdienen mit Affiliate-Marketing, einfach erklärt",
+  "foto": "foto.jpg",
+  "impressum": {
+    "VOLLER NAME": "Willi Kilian",
+    "STRASSE UND HAUSNUMMER": "Gartenstraße 43",
+    "PLZ ORT": "56204 Hillscheid",
+    "LAND": "Deutschland",
+    "E-MAIL": "Info@vatrix-systems.de"
+  },
+  "datenschutz": {
+    "HOSTER": "Netlify, Inc., 512 2nd Street, Suite 200, San Francisco, CA 94107, USA",
+    "E-MAIL-TOOL": "Quentn.com GmbH"
+  }
+}
