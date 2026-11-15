@@ -16,7 +16,7 @@ Ziel: Wer kommentiert, bekommt per DM den Link zur **Opt-in-Seite** (nicht direk
 
 **DM 1:**
 > Hey 👋 hier ist dein Willis Screen Recorder! Trag dich kurz ein, dann bekommst du den Download-Link direkt per Mail:
-> 👉 [[ADRESSE]]
+> 👉 https://willis-screen-recorder.netlify.app
 >
 > Tipp: Öffne die Mail später am Computer, am Handy kann man den Bildschirm leider nicht aufnehmen.
 

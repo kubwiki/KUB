@@ -13,7 +13,7 @@ Hi {{Vorname}},
 
 schön, dass du da bist! Hier ist dein Willis Screen Recorder:
 
-👉 **[Jetzt herunterladen]([[ADRESSE]]/willis-screen-recorder.zip)**
+👉 **[Jetzt herunterladen](https://willis-screen-recorder.netlify.app/willis-screen-recorder.zip)**
 
 So startest du in 2 Minuten:
 
