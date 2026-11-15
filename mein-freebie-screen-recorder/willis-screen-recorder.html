@@ -1,0 +1,2308 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Screen Recorder</title>
+<meta name="description" content="Kostenloser Screen Recorder: Bildschirm, Kamera und Ton aufnehmen, schneiden, zoomen und schön rahmen. Läuft komplett in deinem Browser, ohne Konto und ohne Upload.">
+<script id="toolConfig">
+/* =====================================================================
+   HIER ANPASSEN: Name, Absender und Farbe deines Tools
+   Einfach den Text zwischen den Anführungszeichen ändern und speichern.
+   ===================================================================== */
+const TOOL = {
+  name:  "Willis Screen Recorder",   // So heißt dein Tool, z.B. 'Hartmuts Screen Recorder'
+  von:   "Affiliwilli",         // Erscheint als „von …“ unter dem Tool-Namen
+  farbe: "#1D4ED8",           // Deine Akzentfarbe als Hex-Code (am besten kräftig und eher dunkel)
+};
+/* ===================== Ab hier nichts mehr ändern ===================== */
+(function () {
+  const hex = /^#?[0-9a-f]{6}$/i.test(TOOL.farbe) ? TOOL.farbe.replace('#', '') : '2563EB';
+  const rgb = [0, 2, 4].map(i => parseInt(hex.slice(i, i + 2), 16));
+  const mix = (t, w) => '#' + rgb.map(c => Math.round(c + (t - c) * w).toString(16).padStart(2, '0')).join('').toUpperCase();
+  const B = window.BRAND = {
+    brand: '#' + hex.toUpperCase(), hover: mix(0, .12), dark: mix(0, .3),
+    soft: mix(255, .9), mark: mix(255, .8), light: mix(255, .55), rgb: rgb.join(','),
+  };
+  const st = document.createElement('style'); st.id = 'brandStyle';
+  st.textContent = ':root:root{--sr-brand:' + B.brand + ';--sr-brand-hover:' + B.hover + ';--sr-brand-soft:' + B.soft +
+    ';--sr-brand-soft-ink:' + B.dark + ';--sr-mark:' + B.mark + ';--sr-brand-light:' + B.light + ';--sr-brand-rgb:' + B.rgb + '}';
+  document.head.appendChild(st);
+  const ic = document.createElement('link'); ic.rel = 'icon';
+  ic.href = 'data:image/svg+xml,' + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='1' y='1' width='30' height='30' rx='9' fill='" + B.brand + "'/><circle cx='16' cy='16' r='6.5' fill='#fff'/></svg>");
+  document.head.appendChild(ic);
+  document.title = TOOL.name;
+})();
+</script>
+<style id="appStyle">
+:root {
+  --sr-bg:#FFFFFF; --sr-surface:#F5F5F7; --sr-line:#E6E6EA; --sr-line-2:#D6D4DC;
+  --sr-text:#141218; --sr-sub:#5C5966;
+  --sr-brand:#2563EB; --sr-brand-hover:#2057CF; --sr-brand-ink:#FFFFFF;
+  --sr-brand-soft:#E9EFFD; --sr-brand-soft-ink:#1A45A4; --sr-brand-light:#9DBAF5; --sr-brand-rgb:37,99,235;
+  --sr-mark:#D3E0FB;
+  --sr-font:system-ui, -apple-system, "Segoe UI", sans-serif;
+  --stage:#ECEBF0;
+  --shadow:0 1px 2px rgba(20,18,24,.05), 0 12px 32px -14px rgba(20,18,24,.18);
+}
+* { box-sizing:border-box; }
+html, body { margin:0; height:100%; }
+body { background:var(--sr-bg); color:var(--sr-text); font:400 15px/1.5 var(--sr-font); -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+button, input, select { font:inherit; color:inherit; }
+button { cursor:pointer; -webkit-tap-highlight-color:transparent; }
+:focus { outline:none; }
+:focus-visible { outline:2px solid var(--sr-brand); outline-offset:2px; border-radius:8px; }
+h1, h2, h3, h4 { margin:0; }
+em.mark { font-style:normal; background:linear-gradient(transparent 60%, var(--sr-mark) 60%); }
+[hidden] { display:none !important; }
+svg.i { width:18px; height:18px; flex:none; }
+
+.view { display:none; }
+.view.on { display:flex; flex-direction:column; min-height:100vh; }
+
+/* Kopfleiste */
+.top { height:60px; flex:none; display:flex; align-items:center; gap:10px; padding:0 20px; border-bottom:1px solid var(--sr-line); background:var(--sr-bg); }
+.brand { display:flex; align-items:center; gap:10px; text-decoration:none; color:inherit; }
+.brand svg { width:30px; height:30px; }
+.brand b { font-weight:800; font-size:21px; letter-spacing:-.02em; }
+.brand small { display:block; font-size:11.5px; color:var(--sr-sub); font-weight:500; margin-top:-3px; }
+.spacer { flex:1; }
+
+/* Buttons */
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; height:40px; padding:0 16px; border-radius:12px; border:1.5px solid var(--sr-line); background:var(--sr-bg); font-weight:700; font-size:14px; white-space:nowrap; transition:background .15s, border-color .15s, opacity .15s; }
+.btn:hover { border-color:var(--sr-line-2); background:var(--sr-surface); }
+.btn:disabled { opacity:.4; cursor:not-allowed; }
+.btn-primary { background:var(--sr-brand); border-color:var(--sr-brand); color:#fff; }
+.btn-primary:hover { background:var(--sr-brand-hover); border-color:var(--sr-brand-hover); }
+.btn-lg { height:56px; padding:0 26px; font-size:17px; border-radius:14px; }
+.btn-sm { height:32px; padding:0 11px; font-size:13px; border-radius:10px; }
+.btn-ghost { border-color:transparent; background:transparent; }
+.btn-ghost:hover { background:var(--sr-surface); border-color:transparent; }
+.icon-btn { width:40px; padding:0; }
+.btn-sm.icon-btn { width:32px; }
+kbd { font:700 11px var(--sr-font); padding:2px 7px; border-radius:6px; background:rgba(255,255,255,.22); }
+.btn:not(.btn-primary) kbd { background:var(--sr-surface); color:var(--sr-sub); }
+
+/* Start */
+.home-main { width:100%; max-width:1120px; margin:0 auto; padding:56px 24px 64px; }
+.hero { display:grid; grid-template-columns:1.05fr .95fr; gap:48px; align-items:center; }
+.kicker { font-size:12.5px; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--sr-brand); margin-bottom:14px; }
+.hero h1 { font-size:clamp(34px,5vw,54px); font-weight:800; line-height:1.06; letter-spacing:-.03em; }
+.hero p.lead { font-size:18px; color:var(--sr-sub); margin:18px 0 28px; max-width:30em; line-height:1.55; }
+.hero-actions { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+.note { margin-top:18px; font-size:13.5px; color:var(--sr-sub); display:flex; gap:8px; align-items:flex-start; }
+.note svg { margin-top:2px; color:var(--sr-brand); }
+.warnbox { margin-top:18px; padding:12px 14px; border-radius:12px; background:var(--sr-brand-soft); color:var(--sr-brand-soft-ink); font-size:14px; font-weight:500; }
+
+.setup { background:var(--sr-surface); border-radius:20px; padding:22px; display:flex; flex-direction:column; gap:14px; }
+.setup h3 { font-size:16px; font-weight:800; }
+.surface { display:flex; flex-direction:column; gap:8px; }
+.surface b { font-size:14.5px; font-weight:700; }
+.surface .seg { background:#E4E2EA; }
+.cam-preview { position:relative; aspect-ratio:16/9; border-radius:14px; background:#E4E2EA; overflow:hidden; display:flex; align-items:center; justify-content:center; color:var(--sr-sub); font-size:14px; text-align:center; padding:0 20px; }
+.cam-preview video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
+.opt { display:flex; align-items:center; gap:12px; background:var(--sr-bg); border-radius:14px; padding:10px 12px 10px 14px; }
+.opt .ico { width:34px; height:34px; border-radius:10px; background:var(--sr-brand-soft); color:var(--sr-brand); display:flex; align-items:center; justify-content:center; flex:none; }
+.opt .txt { flex:1; min-width:0; }
+.opt .txt b { display:block; font-size:14.5px; font-weight:700; }
+.opt .txt select { width:100%; max-width:100%; border:0; background:transparent; color:var(--sr-sub); font-size:12.5px; padding:0; margin-left:-2px; text-overflow:ellipsis; }
+.opt .txt span { font-size:12.5px; color:var(--sr-sub); }
+.meter { height:4px; border-radius:4px; background:var(--sr-line); overflow:hidden; margin-top:4px; }
+.meter i { display:block; height:100%; width:0; background:var(--sr-brand); border-radius:4px; transition:width .06s; }
+
+.switch { width:42px; height:26px; border-radius:99px; border:0; background:var(--sr-line-2); position:relative; flex:none; transition:background .15s; padding:0; }
+.switch::after { content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.2); transition:transform .15s; }
+.switch[aria-checked="true"] { background:var(--sr-brand); }
+.switch[aria-checked="true"]::after { transform:translateX(16px); }
+
+.seg { display:inline-flex; background:var(--sr-line); border-radius:11px; padding:3px; gap:2px; flex-wrap:wrap; }
+.seg button { border:0; background:transparent; height:30px; padding:0 11px; border-radius:8px; font-size:13px; font-weight:600; color:var(--sr-sub); }
+.seg button.on { background:var(--sr-bg); color:var(--sr-text); box-shadow:0 1px 2px rgba(0,0,0,.08); }
+.seg.full { display:flex; }
+.seg.full button { flex:1; }
+
+.lib { margin-top:64px; }
+.lib-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px; }
+.lib-head h2 { font-size:22px; font-weight:800; letter-spacing:-.01em; }
+.lib-head span { color:var(--sr-sub); font-size:13.5px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:18px; }
+.card { position:relative; border-radius:16px; background:var(--sr-surface); overflow:hidden; cursor:pointer; transition:transform .15s, box-shadow .15s; text-align:left; border:0; padding:0; }
+.card:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
+.card .thumb { aspect-ratio:16/9; background:#E4E2EA center/contain no-repeat; }
+.card .meta { padding:10px 14px 13px; }
+.card .meta b { display:block; font-size:14.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.card .meta span { font-size:12.5px; color:var(--sr-sub); }
+.card .del { position:absolute; top:8px; right:8px; opacity:0; background:rgba(255,255,255,.92); }
+.card:hover .del, .card:focus-within .del { opacity:1; }
+.empty { border:1.5px dashed var(--sr-line-2); border-radius:16px; padding:28px; text-align:center; color:var(--sr-sub); font-size:14.5px; }
+.foot { margin-top:56px; padding-top:20px; border-top:1px solid var(--sr-line); color:var(--sr-sub); font-size:13px; display:flex; gap:16px; flex-wrap:wrap; justify-content:space-between; }
+
+.legal { flex-basis:100%; }
+.legal summary { cursor:pointer; font-weight:600; color:var(--sr-text); }
+.legal p { margin:10px 0 0; max-width:60em; line-height:1.55; }
+/* Aufnahme */
+#rec { align-items:center; justify-content:center; background:var(--sr-surface); }
+.rec-box { text-align:center; display:flex; flex-direction:column; align-items:center; gap:18px; padding:24px; }
+.rec-state { display:inline-flex; align-items:center; gap:10px; font-weight:700; font-size:15px; color:var(--sr-sub); }
+.dot { width:12px; height:12px; border-radius:50%; background:var(--sr-brand); box-shadow:0 0 0 0 rgba(var(--sr-brand-rgb),.5); animation:pulse 1.4s infinite; }
+.paused .dot { animation:none; background:var(--sr-line-2); }
+@keyframes pulse { 0% { box-shadow:0 0 0 0 rgba(var(--sr-brand-rgb),.45); } 70% { box-shadow:0 0 0 12px rgba(var(--sr-brand-rgb),0); } 100% { box-shadow:0 0 0 0 rgba(var(--sr-brand-rgb),0); } }
+.rec-time { font-size:clamp(64px,12vw,120px); font-weight:800; letter-spacing:-.04em; font-variant-numeric:tabular-nums; line-height:1; }
+.rec-actions { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+.rec-hint { color:var(--sr-sub); font-size:14px; max-width:34em; }
+
+.countdown { position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; background:rgba(13,12,16,.55); backdrop-filter:blur(6px); }
+.countdown span { font-size:180px; font-weight:800; color:#fff; letter-spacing:-.04em; animation:pop .9s ease-out; }
+@keyframes pop { 0% { transform:scale(.6); opacity:0; } 30% { transform:scale(1.05); opacity:1; } 100% { transform:scale(1); opacity:1; } }
+
+/* Editor */
+#edit { height:100vh; min-height:0; }
+.name-input { border:1.5px solid transparent; background:transparent; font-weight:700; font-size:15px; height:36px; padding:0 10px; border-radius:10px; min-width:0; width:min(340px, 32vw); text-overflow:ellipsis; }
+.name-input:hover { border-color:var(--sr-line); }
+.name-input:focus { border-color:var(--sr-brand); }
+.ed-main { flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) 340px; }
+.stage-col { display:flex; flex-direction:column; min-width:0; min-height:0; background:var(--stage); }
+.stage { flex:1; min-height:0; display:flex; align-items:center; justify-content:center; position:relative; }
+.stage canvas { display:block; border-radius:6px; box-shadow:0 2px 6px rgba(20,18,24,.06), 0 18px 40px -20px rgba(20,18,24,.35); background:#fff; touch-action:none; }
+.player { flex:none; display:flex; align-items:center; gap:8px; padding:8px 16px; background:var(--sr-bg); border-top:1px solid var(--sr-line); }
+.player .time { font-variant-numeric:tabular-nums; font-size:13.5px; color:var(--sr-sub); font-weight:600; min-width:110px; }
+.player .play { width:42px; height:42px; border-radius:50%; padding:0; background:var(--sr-brand); border-color:var(--sr-brand); color:#fff; }
+.player .play:hover { background:var(--sr-brand-hover); }
+.tl-wrap { flex:none; background:var(--sr-bg); padding:4px 16px 16px; }
+.tl { position:relative; height:64px; border-radius:10px; background:#E4E2EA; overflow:hidden; cursor:pointer; touch-action:none; user-select:none; }
+.tl canvas { position:absolute; inset:0; width:100%; height:100%; }
+.zt { position:relative; height:24px; margin-bottom:6px; border-radius:8px; background:var(--sr-surface); cursor:default; touch-action:none; user-select:none; }
+.zt:empty::after { content:"Zoom-Spur: Zooms erscheinen hier"; position:absolute; left:10px; top:4px; font-size:11.5px; color:var(--sr-sub); }
+.zb { position:absolute; top:0; bottom:0; border-radius:8px; background:var(--sr-brand-soft); border:1.5px solid var(--sr-brand-light); color:var(--sr-brand-soft-ink); font:700 11px/21px var(--sr-font); padding:0 7px; overflow:hidden; white-space:nowrap; cursor:grab; }
+.zb.on { background:var(--sr-brand); color:#fff; border-color:var(--sr-brand); overflow:visible; z-index:2; }
+.zb .zl { pointer-events:none; }
+.zh { position:absolute; top:2px; bottom:2px; width:8px; border-radius:4px; background:#fff; cursor:ew-resize; }
+.zh.l { left:2px; } .zh.r { right:2px; }
+.chip { font-size:12.5px; font-weight:600; color:var(--sr-brand-soft-ink); background:var(--sr-brand-soft); padding:4px 10px; border-radius:99px; }
+.clip { position:absolute; top:0; bottom:0; border-right:2px solid #fff; pointer-events:none; }
+.clip:last-child { border-right:0; }
+.clip.on { box-shadow:inset 0 0 0 3px var(--sr-brand); border-radius:8px; border-right-color:transparent; z-index:2; }
+.clip .badge { position:absolute; top:6px; left:8px; font:700 11px/1.5 var(--sr-font); background:var(--sr-text); color:#fff; padding:0 6px; border-radius:6px; }
+.clip .hd { position:absolute; top:50%; width:14px; height:34px; margin-top:-17px; border-radius:6px; background:var(--sr-brand); pointer-events:auto; cursor:ew-resize; }
+.clip .hd::after { content:""; position:absolute; left:6px; top:9px; bottom:9px; width:2px; border-radius:2px; background:rgba(255,255,255,.8); }
+.clip .hd.l { left:-6px; }
+.clip .hd.r { right:-6px; }
+.tl-head { position:absolute; top:-2px; bottom:-2px; width:2px; margin-left:-1px; background:var(--sr-text); pointer-events:none; }
+.tl-head::before { content:""; position:absolute; top:0; left:-5px; width:12px; height:8px; border-radius:3px; background:var(--sr-text); }
+.tl-labels { display:flex; justify-content:space-between; font-size:12px; color:var(--sr-sub); margin-top:6px; font-variant-numeric:tabular-nums; }
+
+.panel { border-left:1px solid var(--sr-line); overflow-y:auto; background:var(--sr-bg); min-height:0; }
+.sect { padding:18px 20px; border-bottom:1px solid var(--sr-line); display:flex; flex-direction:column; gap:12px; }
+.sect h4 { font-size:12.5px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--sr-sub); display:flex; align-items:center; justify-content:space-between; }
+.row { display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:14px; }
+.row-label { font-weight:600; }
+.slider { display:grid; grid-template-columns:86px 1fr 44px; align-items:center; gap:10px; font-size:13.5px; }
+.slider label { font-weight:600; }
+.slider .val { text-align:right; color:var(--sr-sub); font-variant-numeric:tabular-nums; font-size:12.5px; }
+input[type=range] { -webkit-appearance:none; appearance:none; width:100%; height:20px; background:transparent; margin:0; }
+input[type=range]::-webkit-slider-runnable-track { height:4px; border-radius:4px; background:var(--sr-line); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:#fff; border:2px solid var(--sr-brand); margin-top:-7px; box-shadow:0 1px 3px rgba(0,0,0,.15); }
+input[type=range]::-moz-range-track { height:4px; border-radius:4px; background:var(--sr-line); }
+input[type=range]::-moz-range-thumb { width:14px; height:14px; border-radius:50%; background:#fff; border:2px solid var(--sr-brand); }
+.swatches { display:grid; grid-template-columns:repeat(6, 1fr); gap:8px; }
+.sw { aspect-ratio:1; border-radius:10px; border:1.5px solid rgba(20,18,24,.12); position:relative; padding:0; overflow:hidden; display:flex; align-items:center; justify-content:center; background:var(--sr-surface); color:var(--sr-sub); }
+.sw.on { outline:2.5px solid var(--sr-brand); outline-offset:2px; }
+.sw input[type=color] { position:absolute; inset:0; opacity:0; width:100%; height:100%; cursor:pointer; }
+.sw svg { width:16px; height:16px; }
+.text-input { width:100%; height:36px; border:1.5px solid var(--sr-line); border-radius:10px; padding:0 10px; font-size:14px; background:var(--sr-bg); }
+.text-input:focus { border-color:var(--sr-brand); }
+.corners { display:grid; grid-template-columns:1fr 1fr; gap:6px; width:96px; }
+.corners button { height:30px; border-radius:8px; border:1.5px solid var(--sr-line); background:var(--sr-bg); padding:0; position:relative; }
+.corners button::after { content:""; position:absolute; width:8px; height:8px; border-radius:50%; background:var(--sr-line-2); }
+.corners button[data-c^="t"]::after { top:5px; } .corners button[data-c^="b"]::after { bottom:5px; }
+.corners button[data-c$="l"]::after { left:6px; } .corners button[data-c$="r"]::after { right:6px; }
+.corners button.on { border-color:var(--sr-brand); background:var(--sr-brand-soft); }
+.corners button.on::after { background:var(--sr-brand); }
+.hint { font-size:12.5px; color:var(--sr-sub); line-height:1.45; }
+.btn-row { display:flex; gap:8px; flex-wrap:wrap; }
+.shortcuts { display:grid; grid-template-columns:auto 1fr; gap:6px 12px; font-size:12.5px; color:var(--sr-sub); }
+.shortcuts kbd { background:var(--sr-surface); color:var(--sr-text); justify-self:start; }
+
+/* Modal */
+.modal { position:fixed; inset:0; z-index:40; display:flex; align-items:center; justify-content:center; background:rgba(13,12,16,.45); padding:16px; }
+.modal-box { width:min(460px, 100%); background:var(--sr-bg); border-radius:20px; box-shadow:0 30px 80px -20px rgba(0,0,0,.45); padding:24px; display:flex; flex-direction:column; gap:16px; }
+.modal-box h3 { font-size:20px; font-weight:800; letter-spacing:-.01em; }
+.modal-box p { margin:0; color:var(--sr-sub); font-size:14.5px; }
+.modal-foot { display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; }
+/* Geräte-Check vor der Aufnahme */
+.ck-box { width:min(640px, 100%); }
+.ck-grid { display:grid; grid-template-columns:200px 1fr; gap:16px; align-items:start; }
+.ck-cam { position:relative; aspect-ratio:1; border-radius:18px; background:#E4E2EA; overflow:hidden; display:flex; align-items:center; justify-content:center; color:var(--sr-sub); font-size:13px; text-align:center; padding:0 14px; }
+.ck-cam video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
+.ck-list { display:flex; flex-direction:column; gap:8px; }
+.ck-row { display:flex; align-items:center; gap:12px; background:var(--sr-surface); border-radius:14px; padding:10px 12px; }
+.ck-row .txt { flex:1; min-width:0; }
+.ck-row .txt b { display:block; font-size:14px; font-weight:700; }
+.ck-row .txt span { display:block; font-size:12.5px; color:var(--sr-sub); line-height:1.4; }
+.ck-dot { width:22px; height:22px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; background:var(--sr-line-2); color:#fff; font:800 12px/1 var(--sr-font); }
+.ck-row[data-s="ok"] .ck-dot { background:#16A34A; }
+.ck-row[data-s="ok"] .ck-dot::after { content:"✓"; }
+.ck-row[data-s="bad"] .ck-dot { background:#DC2626; }
+.ck-row[data-s="bad"] .ck-dot::after { content:"!"; }
+.ck-row[data-s="bad"] .txt span { color:#B91C1C; }
+.ck-row[data-s="wait"] .ck-dot { background:#F59E0B; animation:ckp 1s ease-in-out infinite; }
+.ck-row[data-s="info"] .ck-dot { background:var(--sr-brand); }
+.ck-row[data-s="info"] .ck-dot::after { content:"i"; }
+@keyframes ckp { 50% { opacity:.4; } }
+.ck-row .meter { margin-top:6px; }
+.ck-pip { display:flex; gap:12px; align-items:flex-start; border:1.5px solid var(--sr-line); border-radius:14px; padding:12px; }
+.ck-pip .txt b { display:block; font-size:14px; font-weight:700; }
+.ck-pip .txt span { display:block; font-size:12.5px; color:var(--sr-sub); line-height:1.4; }
+@media (max-width:600px) { .ck-grid { grid-template-columns:1fr; } .ck-cam { aspect-ratio:16/9; } }
+.bar { height:10px; border-radius:10px; background:var(--sr-line); overflow:hidden; }
+.bar i { display:block; height:100%; width:0; background:var(--sr-brand); border-radius:10px; transition:width .2s; }
+.big-num { font-size:40px; font-weight:800; letter-spacing:-.03em; font-variant-numeric:tabular-nums; }
+
+/* Hinweise */
+.toasts { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:60; display:flex; flex-direction:column; gap:8px; align-items:center; pointer-events:none; }
+.toast { background:var(--sr-text); color:#fff; padding:11px 16px; border-radius:12px; font-size:14px; font-weight:500; box-shadow:0 12px 30px -10px rgba(0,0,0,.4); max-width:min(520px, 92vw); transition:opacity .25s, transform .25s; }
+
+/* Mini-Steuerung (Bild im Bild) */
+body.pip { background:#141218; color:#fff; display:flex; flex-wrap:wrap; align-content:center; align-items:center; gap:8px 10px; padding:0 14px; height:100vh; margin:0; }
+body.pip .h { flex-basis:100%; font-size:12px; line-height:1.35; color:var(--sr-brand-light); font-weight:600; }
+body.pip .t { font-weight:800; font-size:22px; font-variant-numeric:tabular-nums; flex:1; letter-spacing:-.02em; }
+body.pip .btn { height:36px; background:#2A2730; border-color:#2A2730; color:#fff; }
+/* Studio-Startseite (eigene Optik) */
+#home { background:radial-gradient(1200px 520px at 50% -120px, var(--sr-brand-soft), transparent 70%), var(--sr-bg); }
+#home .top { background:transparent; border-bottom-color:transparent; }
+.studio { max-width:880px; margin:0 auto; }
+.studio-intro { text-align:center; margin-bottom:28px; }
+.studio-intro h1 { font-size:clamp(32px,4.6vw,48px); font-weight:800; line-height:1.08; letter-spacing:-.03em; }
+.studio-intro .lead { font-size:17.5px; color:var(--sr-sub); margin:14px auto 0; max-width:34em; line-height:1.55; }
+.studio-intro .kicker { display:inline-block; padding:6px 12px; border-radius:999px; background:var(--sr-bg); box-shadow:0 1px 2px rgba(20,18,24,.06); color:var(--sr-brand-soft-ink); letter-spacing:.08em; font-size:12px; }
+.studio-card { background:var(--sr-bg); border-radius:28px; padding:26px; box-shadow:0 1px 2px rgba(20,18,24,.05), 0 30px 70px -36px rgba(20,18,24,.35); border:1px solid var(--sr-line); }
+.tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.tiles button { display:flex; flex-direction:column; align-items:center; gap:10px; padding:18px 10px; border-radius:18px; border:1.5px solid var(--sr-line); background:var(--sr-bg); color:var(--sr-sub); transition:border-color .15s, background .15s, color .15s; }
+.tiles button svg.i { width:28px; height:28px; }
+.tiles button b { font-size:14.5px; font-weight:700; }
+.tiles button:hover { border-color:var(--sr-line-2); }
+.tiles button.on { border-color:var(--sr-brand); background:var(--sr-brand-soft); color:var(--sr-brand-soft-ink); }
+.studio-hint { text-align:center; margin:12px auto 20px; max-width:46em; }
+.studio-grid { display:grid; grid-template-columns:1.1fr 1fr; gap:16px; align-items:stretch; }
+.studio-grid .cam-preview { aspect-ratio:auto; min-height:220px; height:100%; border-radius:20px; background:var(--sr-surface); }
+.opts { display:flex; flex-direction:column; gap:8px; }
+.opts .opt { background:var(--sr-surface); border-radius:16px; }
+.studio-go { display:flex; flex-direction:column; align-items:center; margin-top:22px; }
+.studio-go .note { justify-content:center; text-align:center; }
+.btn-rec { height:60px; padding:0 30px; font-size:17.5px; border-radius:999px; gap:12px; box-shadow:0 14px 30px -14px rgba(var(--sr-brand-rgb),.75); }
+.btn-rec .rec-dot { width:12px; height:12px; border-radius:50%; background:#fff; box-shadow:0 0 0 4px rgba(255,255,255,.28); }
+.lib { max-width:880px; margin:56px auto 0; }
+.foot { max-width:880px; margin-left:auto; margin-right:auto; }
+.card { border-radius:20px; }
+
+body.pip .btn-primary { background:var(--sr-brand); border-color:var(--sr-brand); }
+body.pip .count { font-size:26px; font-weight:800; flex:1; }
+
+@media (max-width: 900px) {
+  .studio-grid { grid-template-columns:1fr; }
+  .brand b { font-size:17px; }
+  .studio-card { padding:18px; border-radius:22px; }
+  .tiles button { padding:14px 6px; }
+  .tiles button b { font-size:13px; }
+  .home-main { padding-top:32px; }
+  #edit { height:auto; min-height:100vh; }
+  .ed-main { grid-template-columns:1fr; }
+  .stage { min-height:56vw; padding:12px 0; }
+  .panel { border-left:0; border-top:1px solid var(--sr-line); }
+  .name-input { width:40vw; }
+  .top { padding:0 12px; }
+  .hide-sm { display:none; }
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-rec" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="currentColor"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
+  <symbol id="i-cam" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="6" width="13" height="12" rx="3"/><path d="M16 10.5l5-3v9l-5-3z"/></symbol>
+  <symbol id="i-sound" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5v14l-4.5-4.5H4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></symbol>
+  <symbol id="i-timer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9.5 2.5h5"/></symbol>
+  <symbol id="i-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" fill="currentColor"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></symbol>
+  <symbol id="i-img" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-pip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><rect x="12" y="11" width="6" height="5" rx="1" fill="currentColor"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2.5"/><path d="M8.5 20h7M12 16v4"/></symbol>
+  <symbol id="i-window" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3 9h18"/><path d="M6 7h.01M8.5 7h.01"/></symbol>
+  <symbol id="i-tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19V8.5A2.5 2.5 0 0 1 5.5 6H10l2 3h6.5A2.5 2.5 0 0 1 21 11.5V19"/><path d="M3 19h18"/></symbol>
+  <symbol id="i-logo" viewBox="0 0 32 32"><rect x="1" y="1" width="30" height="30" rx="9" style="fill:var(--sr-brand)"/><circle cx="16" cy="16" r="6.5" fill="#fff"/></symbol>
+</svg>
+
+<!-- ============ Start ============ -->
+<div class="view on" id="home">
+  <header class="top">
+    <a class="brand" href="#" onclick="return false"><svg><use href="#i-logo"/></svg><div><b class="tn">Screen Recorder</b><small>von <span class="tv">Dein Name</span></small></div></a>
+    <span class="spacer"></span>
+    <button class="btn btn-ghost" id="openBtn" type="button"><svg class="i"><use href="#i-open"/></svg><span class="hide-sm">Video öffnen</span></button>
+    <input type="file" id="openFile" accept="video/*" hidden>
+  </header>
+  <main class="home-main">
+    <section class="studio">
+      <div class="studio-intro">
+        <div class="kicker">Kostenlos, ohne Konto, direkt im Browser</div>
+        <h1>Was nimmst du heute auf?</h1>
+        <p class="lead">Aufnehmen, schneiden, zoomen und schön einrahmen. Deine Videos bleiben auf deinem Rechner.</p>
+      </div>
+      <div class="studio-card">
+        <div class="tiles" id="surfSeg">
+          <button type="button" data-v="monitor"><svg class="i"><use href="#i-monitor"/></svg><b>Ganzer Bildschirm</b></button>
+          <button type="button" data-v="window"><svg class="i"><use href="#i-window"/></svg><b>Ein Fenster</b></button>
+          <button type="button" data-v="browser"><svg class="i"><use href="#i-tab"/></svg><b>Ein Tab</b></button>
+        </div>
+        <p class="hint studio-hint" id="surfHint"></p>
+        <div class="studio-grid">
+          <div class="cam-preview" id="camPreview"><span id="camPreviewText">Schalte die Kamera ein, dann siehst du dich hier.</span><video id="camPreviewVideo" muted playsinline hidden></video></div>
+          <div class="opts">
+            <div class="opt">
+              <div class="ico"><svg class="i"><use href="#i-mic"/></svg></div>
+              <div class="txt"><b>Mikrofon</b><select id="micSel" aria-label="Mikrofon wählen" hidden></select><span id="micOff">Aus</span><div class="meter" id="micMeter" hidden><i></i></div></div>
+              <button class="switch" id="micSw" role="switch" aria-checked="false" aria-label="Mikrofon" type="button"></button>
+            </div>
+            <div class="opt">
+              <div class="ico"><svg class="i"><use href="#i-cam"/></svg></div>
+              <div class="txt"><b>Kamera</b><select id="camSel" aria-label="Kamera wählen" hidden></select><span id="camOff">Aus</span></div>
+              <button class="switch" id="camSw" role="switch" aria-checked="false" aria-label="Kamera" type="button"></button>
+            </div>
+            <div class="opt">
+              <div class="ico"><svg class="i"><use href="#i-sound"/></svg></div>
+              <div class="txt"><b>Computer-Ton</b><span>Ton aus Videos und Apps</span></div>
+              <button class="switch" id="sysSw" role="switch" aria-checked="true" aria-label="Computer-Ton" type="button"></button>
+            </div>
+            <div class="opt">
+              <div class="ico"><svg class="i"><use href="#i-timer"/></svg></div>
+              <div class="txt"><b>Countdown</b></div>
+              <div class="seg" id="cdSeg"><button type="button" data-v="0">Aus</button><button type="button" data-v="3">3 s</button><button type="button" data-v="5">5 s</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="studio-go">
+          <button class="btn btn-primary btn-rec" id="startBtn" type="button"><span class="rec-dot"></span>Aufnahme starten <kbd>R</kbd></button>
+          <div class="warnbox" id="browserWarn" hidden></div>
+          <div class="note"><svg class="i"><use href="#i-lock"/></svg><span>Kamera und Mikrofon werden erst genutzt, wenn du sie einschaltest. Nichts wird hochgeladen.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="lib">
+      <div class="lib-head"><h2>Deine Aufnahmen</h2><span id="libInfo"></span></div>
+      <div class="grid" id="libGrid"></div>
+    </section>
+
+    <footer class="foot">
+      <span><b class="tn">Screen Recorder</b> ist ein kostenloses Tool von <span class="tv">Dein Name</span>.</span>
+      <span>Am besten in Chrome, Edge oder Brave.</span>
+      <details class="legal">
+        <summary>Datenschutz und Hinweise</summary>
+        <p><b>Deine Daten bleiben bei dir.</b> Dieses Tool läuft komplett in deinem Browser auf deinem Rechner. Es gibt keinen Server, keine Cookies, kein Tracking und keine Analyse. Niemand außer dir bekommt deine Aufnahmen oder Daten zu sehen, auch nicht <span class="tv">Dein Name</span>.</p>
+        <p><b>Kamera, Mikrofon und Bildschirm</b> werden nur genutzt, wenn du sie selbst einschaltest und in deinem Browser erlaubst.</p>
+        <p><b>Andere aufnehmen:</b> Wenn du Gespräche, Calls oder andere Personen aufnimmst, frag sie bitte vorher. Fremde Daten auf dem Bildschirm, zum Beispiel E-Mails oder Kundendaten, deckst du vor dem Veröffentlichen ab.</p>
+        <p><b>Sichern:</b> Deine Aufnahmen liegen im Speicher dieses Browsers. Löschst du die Websitedaten, sind sie weg. Exportier also alles, was du behalten willst.</p>
+        <p><b>Haftung:</b> Dieses Tool ist kostenlos und wird ohne Gewähr bereitgestellt. Die Nutzung erfolgt auf eigenes Risiko. Eine Haftung wird nicht übernommen.</p>
+      </details>
+    </footer>
+  </main>
+</div>
+
+<!-- ============ Aufnahme ============ -->
+<div class="view" id="rec">
+  <div class="rec-box">
+    <div class="rec-state" id="recState"><span class="dot"></span><span id="recLabel">Aufnahme läuft</span></div>
+    <div class="rec-time" id="recTime">0:00</div>
+    <div class="rec-actions">
+      <button class="btn btn-lg" id="pauseBtn" type="button"><svg class="i"><use href="#i-pause"/></svg><span>Pause</span></button>
+      <button class="btn btn-primary btn-lg" id="stopBtn" type="button"><svg class="i"><use href="#i-stop"/></svg>Stopp und bearbeiten</button>
+    </div>
+    <div class="rec-actions">
+      <button class="btn btn-sm btn-ghost" id="pipBtn" type="button"><svg class="i"><use href="#i-pip"/></svg>Schwebende Steuerung einblenden</button>
+      <button class="btn btn-sm btn-ghost" id="discardBtn" type="button"><svg class="i"><use href="#i-trash"/></svg>Verwerfen</button>
+    </div>
+    <p class="rec-hint" id="recHint"></p>
+  </div>
+</div>
+
+<!-- ============ Editor ============ -->
+<div class="view" id="edit">
+  <header class="top">
+    <button class="btn btn-ghost icon-btn" id="backBtn" type="button" aria-label="Zurück zur Übersicht"><svg class="i"><use href="#i-back"/></svg></button>
+    <svg class="hide-sm" width="26" height="26"><use href="#i-logo"/></svg>
+    <input class="name-input" id="nameInput" aria-label="Name der Aufnahme">
+    <span class="spacer"></span>
+    <button class="btn btn-ghost icon-btn" id="undoBtn" type="button" aria-label="Rückgängig"><svg class="i"><use href="#i-undo"/></svg></button>
+    <button class="btn btn-ghost icon-btn" id="redoBtn" type="button" aria-label="Wiederholen"><svg class="i"><use href="#i-redo"/></svg></button>
+    <button class="btn btn-primary" id="exportBtn" type="button"><svg class="i"><use href="#i-down"/></svg>Exportieren</button>
+  </header>
+  <div class="ed-main">
+    <div class="stage-col">
+      <div class="stage" id="stage"><canvas id="stageCanvas"></canvas></div>
+      <div class="player">
+        <button class="btn play" id="playBtn" type="button" aria-label="Abspielen"><svg class="i"><use href="#i-play"/></svg></button>
+        <span class="time" id="timeLabel">0:00 / 0:00</span>
+        <span class="chip" id="anaChip" hidden></span>
+        <span class="spacer"></span>
+        <button class="btn btn-sm" id="splitBtn" type="button" title="Taste S">Teilen <kbd>S</kbd></button>
+        <button class="btn btn-sm" id="delBtn" type="button" title="Taste ⌫"><svg class="i"><use href="#i-trash"/></svg>Stück löschen</button>
+      </div>
+      <div class="tl-wrap">
+        <div class="zt" id="zTrack" title="Zoom-Spur"></div>
+        <div class="tl" id="tl">
+          <canvas id="tlThumbs"></canvas>
+          <div id="tlClips"></div>
+          <div class="tl-head" id="tlHead"></div>
+        </div>
+        <div class="tl-labels"><span id="tlStart">0:00</span><span id="tlLen"></span><span id="tlEnd">0:00</span></div>
+      </div>
+    </div>
+    <aside class="panel" id="panel"></aside>
+  </div>
+</div>
+
+<!-- ============ Export ============ -->
+<div class="modal" id="ckModal" hidden role="dialog" aria-modal="true" aria-labelledby="ckTitle">
+  <div class="modal-box ck-box">
+    <h3 id="ckTitle">Kurzer Check vor der Aufnahme</h3>
+    <p id="ckLead">Einen Moment, ich prüfe Kamera und Mikrofon.</p>
+    <div class="ck-grid">
+      <div class="ck-cam"><span id="ckCamEmpty">Kamera aus</span><video id="ckCamVideo" muted playsinline hidden></video></div>
+      <div class="ck-list">
+        <div class="ck-row" id="ckScreen"><span class="ck-dot"></span><div class="txt"><b>Bildschirm</b><span></span></div></div>
+        <div class="ck-row" id="ckCam"><span class="ck-dot"></span><div class="txt"><b>Kamera</b><span></span></div><button class="switch" id="ckCamSw" role="switch" aria-checked="false" aria-label="Kamera" type="button"></button></div>
+        <div class="ck-row" id="ckMic"><span class="ck-dot"></span><div class="txt"><b>Mikrofon</b><span></span><div class="meter" id="ckMeter" hidden><i></i></div></div><button class="switch" id="ckMicSw" role="switch" aria-checked="false" aria-label="Mikrofon" type="button"></button></div>
+        <div class="ck-row" id="ckSys"><span class="ck-dot"></span><div class="txt"><b>Computer-Ton</b><span></span></div><button class="switch" id="ckSysSw" role="switch" aria-checked="false" aria-label="Computer-Ton" type="button"></button></div>
+      </div>
+    </div>
+    <div class="ck-pip"><button class="switch" id="ckPipSw" role="switch" aria-checked="false" aria-label="Schwebende Steuerung" type="button"></button><div class="txt"><b>Schwebende Steuerung</b><span id="ckPipTxt"></span></div></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="ckRetry" type="button" hidden>Nochmal prüfen</button>
+      <span class="spacer"></span>
+      <button class="btn" id="ckCancel" type="button">Zurück</button>
+      <button class="btn btn-primary" id="ckGo" type="button"><svg class="i"><use href="#i-rec"/></svg>Aufnahme starten</button>
+    </div>
+  </div>
+</div>
+<div class="modal" id="exModal" hidden>
+  <div class="modal-box" id="exSetup">
+    <h3>Video exportieren</h3>
+    <div class="row"><span class="row-label">Qualität</span><div class="seg" id="exQ"></div></div>
+    <div class="row"><span class="row-label">Bilder pro Sekunde</span><div class="seg" id="exF"></div></div>
+    <p id="exInfo"></p>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="exPng" type="button"><svg class="i"><use href="#i-img"/></svg>Standbild als PNG</button>
+      <span class="spacer"></span>
+      <button class="btn" id="exCancel" type="button">Abbrechen</button>
+      <button class="btn btn-primary" id="exGo" type="button"><svg class="i"><use href="#i-down"/></svg>Video speichern</button>
+    </div>
+  </div>
+  <div class="modal-box" id="exRun" hidden>
+    <h3>Dein Video wird gebaut</h3>
+    <div class="big-num" id="exPct">0 %</div>
+    <div class="bar"><i id="exBar"></i></div>
+    <p>Lass diesen Tab bitte offen und im Vordergrund, solange das läuft. Das dauert ungefähr so lange wie dein Video.</p>
+    <div class="modal-foot"><button class="btn" id="exStop" type="button">Abbrechen</button></div>
+  </div>
+  <div class="modal-box" id="exDone" hidden>
+    <h3>Fertig, dein Video ist gespeichert 🎬</h3>
+    <p id="exDoneInfo">Du findest es in deinem Download-Ordner.</p>
+    <div class="modal-foot">
+      <button class="btn" id="exAgain" type="button">Nochmal herunterladen</button>
+      <button class="btn btn-primary" id="exClose" type="button">Weiter bearbeiten</button>
+    </div>
+  </div>
+</div>
+
+<div class="countdown" id="countdown" hidden><span id="cdNum">3</span></div>
+<div class="toasts" id="toasts"></div>
+
+<script>
+'use strict';
+/* =========================================================================
+   Screen Recorder
+   Alles läuft im Browser. Aufnahmen liegen in IndexedDB auf diesem Rechner.
+   ========================================================================= */
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const fmt = t => { t = Math.max(0, t || 0); const m = Math.floor(t / 60), s = Math.floor(t % 60); return m + ':' + String(s).padStart(2, '0'); };
+const fmtD = t => { t = Math.max(0, t || 0); return fmt(t) + ',' + Math.floor((t % 1) * 10); };
+const pct = v => Math.round(v * 100) + ' %';
+// White Label: Name und Absender aus TOOL einsetzen, Browser um dauerhaften Speicher bitten
+$$('.tn').forEach(e => { e.textContent = TOOL.name; });
+$$('.tv').forEach(e => { e.textContent = TOOL.von; });
+try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) { /* egal */ }
+
+function h(tag, attrs = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v == null || v === false) continue;
+    if (k.startsWith('on')) e[k] = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k === 'html') e.innerHTML = v;
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  for (const k of kids.flat()) { if (k == null || k === false) continue; e.append(k.nodeType ? k : document.createTextNode(k)); }
+  return e;
+}
+const icon = id => { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('class', 'i'); const u = document.createElementNS('http://www.w3.org/2000/svg', 'use'); u.setAttribute('href', '#i-' + id); s.append(u); return s; };
+
+function toast(msg, ms = 3800) {
+  const t = h('div', { class: 'toast', text: msg });
+  $('#toasts').append(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(6px)'; setTimeout(() => t.remove(), 280); }, ms);
+}
+function once(el, ev, timeout = 4000) {
+  return new Promise(res => {
+    let done = false;
+    const fin = () => { if (done) return; done = true; el.removeEventListener(ev, fin); res(); };
+    el.addEventListener(ev, fin);
+    setTimeout(fin, timeout);
+  });
+}
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem('screenrec:' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('screenrec:' + k, JSON.stringify(v)); } catch (e) { /* egal */ } },
+};
+function download(blob, name) {
+  const a = h('a', { href: URL.createObjectURL(blob), download: name });
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+}
+function slug(s) {
+  return (s || 'aufnahme').toLowerCase().replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'aufnahme';
+}
+
+/* ---------- Speicher: IndexedDB, mit Notlösung im Arbeitsspeicher ---------- */
+const MEM = { projects: new Map(), media: new Map() };
+const DB = {
+  p: null,
+  open() {
+    if (!this.p) this.p = new Promise((res, rej) => {
+      const r = indexedDB.open('screen-recorder', 1);
+      r.onupgradeneeded = () => { r.result.createObjectStore('projects', { keyPath: 'id' }); r.result.createObjectStore('media', { keyPath: 'id' }); };
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+    });
+    return this.p;
+  },
+  async run(store, mode, fn) {
+    const d = await this.open();
+    return new Promise((res, rej) => {
+      const t = d.transaction(store, mode);
+      const q = fn(t.objectStore(store));
+      t.oncomplete = () => res(q && q.result);
+      t.onerror = t.onabort = () => rej(t.error);
+    });
+  },
+};
+const Store = {
+  async get(s, id) { try { const v = await DB.run(s, 'readonly', o => o.get(id)); if (v) return v; } catch (e) { /* weiter */ } return MEM[s].get(id); },
+  async all(s) { try { return await DB.run(s, 'readonly', o => o.getAll()); } catch (e) { return [...MEM[s].values()]; } },
+  async put(s, v) { MEM[s].set(v.id, v); try { await DB.run(s, 'readwrite', o => o.put(v)); MEM[s].delete(v.id); } catch (e) { S.memOnly = true; } },
+  async del(s, id) { MEM[s].delete(id); try { await DB.run(s, 'readwrite', o => o.delete(id)); } catch (e) { /* egal */ } },
+};
+
+/* ---------- Zustand ---------- */
+const ASPECTS = { '16:9': 16 / 9, '9:16': 9 / 16, '1:1': 1, '4:5': 4 / 5 };
+const SWATCHES = [
+  [BRAND.brand, 'Akzent'], [BRAND.dark, 'Akzent dunkel'], [BRAND.mark, 'Akzent hell'], [BRAND.soft, 'Akzent zart'],
+  ['#F5F5F7', 'Hellgrau'], ['#FFFFFF', 'Weiß'], ['#141218', 'Fast Schwarz'],
+];
+const BORDER_COLORS = { white: '#FFFFFF', black: '#141218', akzent: BRAND.brand };
+
+function defaults() {
+  return {
+    aspect: '16:9',
+    bg: { kind: 'color', color: BRAND.brand, pattern: 'none', image: null },
+    frame: { pad: 0.07, radius: 0.022, shadow: 0.6, chrome: 'none', url: 'meine-seite.de' },
+    cam: { on: true, shape: 'circle', size: 0.24, zoom: 1, border: 'white', borderColor: BRAND.brand, shadow: 0.6, mirror: true, pos: 'br', x: null, y: null },
+    audio: { volume: 1, mute: false },
+    clips: null,
+    masks: [],
+    zooms: [], zoomLevel: 1.8, zoomSpeed: 'normal',
+    crop: { t: 0, b: 0, l: 0, r: 0 },
+  };
+}
+function mergeDefaults(st) {
+  const d = defaults();
+  for (const k of Object.keys(d)) {
+    if (st[k] == null) st[k] = d[k];
+    else if (d[k] && typeof d[k] === 'object' && !Array.isArray(d[k])) for (const kk of Object.keys(d[k])) if (!(kk in st[k])) st[k][kk] = d[k][kk];
+  }
+  return st;
+}
+
+const S = {
+  view: 'home',
+  prefs: Object.assign({ mic: true, cam: false, sys: true, micId: '', camId: '', countdown: 3, surface: 'monitor', pip: false }, LS.get('prefs', {})),
+  micStream: null, camStream: null,
+  project: null, st: null, urls: {},
+  sv: null, cv: null,
+  playing: false, dirty: true,
+  undo: [], redo: [], lastState: '',
+  memOnly: false,
+};
+const savePrefs = () => LS.set('prefs', S.prefs);
+
+/* =========================================================================
+   Zeichnen: ein Bild aus Hintergrund, Rahmen, Bildschirm und Kamera
+   ========================================================================= */
+function srcSize(s) {
+  if (!s) return [0, 0];
+  if (s instanceof HTMLVideoElement) return [s.videoWidth, s.videoHeight];
+  return [s.naturalWidth || s.width, s.naturalHeight || s.height];
+}
+function drawCover(ctx, src, x, y, w, hh, { mirror = false, zoom = 1 } = {}) {
+  const [sw, sh] = srcSize(src);
+  if (!sw || !sh || w <= 0 || hh <= 0) return;
+  const sc = Math.max(w / sw, hh / sh) * zoom;
+  const cw = w / sc, ch = hh / sc, cx = (sw - cw) / 2, cy = (sh - ch) / 2;
+  if (mirror) { ctx.save(); ctx.translate(x + w, y); ctx.scale(-1, 1); ctx.drawImage(src, cx, cy, cw, ch, 0, 0, w, hh); ctx.restore(); }
+  else ctx.drawImage(src, cx, cy, cw, ch, x, y, w, hh);
+}
+function rr(ctx, x, y, w, hh, r) {
+  r = Math.max(0, Math.min(r, w / 2, hh / 2));
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + hh, r);
+  ctx.arcTo(x + w, y + hh, x, y + hh, r);
+  ctx.arcTo(x, y + hh, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+function isDark(hex) {
+  const n = parseInt((hex || '#000').slice(1), 16);
+  const r = n >> 16 & 255, g = n >> 8 & 255, b = n & 255;
+  return (0.299 * r + 0.587 * g + 0.114 * b) < 150;
+}
+const imgCache = new Map();
+function bgImage(url) {
+  if (!url) return null;
+  let im = imgCache.get(url);
+  if (!im) { im = new Image(); im.onload = () => { S.dirty = true; }; im.src = url; imgCache.set(url, im); }
+  return im.complete && im.naturalWidth ? im : null;
+}
+// Weiche Schatten sind teuer. Wir malen jeden Schatten einmal vor und setzen danach nur noch das fertige Bild ein.
+const shadowCache = new Map();
+function drawShadowBox(ctx, x, y, w, h, r, blur, offY, color, fill) {
+  const pad = Math.ceil(blur * 1.6 + Math.abs(offY) + 2);
+  const key = [Math.round(w), Math.round(h), Math.round(r), Math.round(blur), Math.round(offY), color, fill].join('|');
+  let c = shadowCache.get(key);
+  if (!c) {
+    if (shadowCache.size > 16) shadowCache.clear();
+    c = document.createElement('canvas'); c.width = Math.round(w) + 2 * pad; c.height = Math.round(h) + 2 * pad;
+    const g = c.getContext('2d');
+    g.shadowColor = color; g.shadowBlur = blur; g.shadowOffsetY = offY;
+    rr(g, pad, pad, Math.round(w), Math.round(h), r); g.fillStyle = fill; g.fill();
+    c.pad = pad; shadowCache.set(key, c);
+  }
+  ctx.drawImage(c, x - c.pad, y - c.pad, Math.round(w) + 2 * c.pad, Math.round(h) + 2 * c.pad);
+}
+const blurC = document.createElement('canvas'), blurC2 = document.createElement('canvas');
+function drawBlur(ctx, src, W, H) {
+  blurC.width = 48; blurC.height = Math.max(1, Math.round(48 * H / W));
+  const b = blurC.getContext('2d');
+  drawCover(b, src, 0, 0, blurC.width, blurC.height);
+  // Unschärfe auf dem winzigen Bild rechnen statt auf der großen Fläche: sieht gleich aus, kostet fast nichts
+  blurC2.width = blurC.width; blurC2.height = blurC.height;
+  const b2 = blurC2.getContext('2d');
+  b2.filter = 'blur(1px) saturate(1.15)'; b2.drawImage(blurC, 0, 0);
+  ctx.save();
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(blurC2, -W * 0.06, -H * 0.06, W * 1.12, H * 1.12);
+  ctx.restore();
+  ctx.fillStyle = 'rgba(13,12,16,.16)'; ctx.fillRect(0, 0, W, H);
+}
+function drawPattern(ctx, W, H, kind, base) {
+  if (!kind || kind === 'none') return;
+  const m = Math.min(W, H), s = m * 0.045;
+  ctx.save();
+  ctx.globalAlpha = isDark(base) ? 0.16 : 0.12;
+  ctx.fillStyle = ctx.strokeStyle = isDark(base) ? '#FFFFFF' : BRAND.dark;
+  ctx.lineWidth = Math.max(1, m * 0.0018);
+  if (kind === 'dots') {
+    const r = Math.max(1, m * 0.0034);
+    ctx.beginPath();
+    for (let y = s / 2; y < H; y += s) for (let x = s / 2; x < W; x += s) { ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, Math.PI * 2); }
+    ctx.fill();
+  } else if (kind === 'grid') {
+    ctx.beginPath();
+    for (let x = s; x < W; x += s) { ctx.moveTo(x, 0); ctx.lineTo(x, H); }
+    for (let y = s; y < H; y += s) { ctx.moveTo(0, y); ctx.lineTo(W, y); }
+    ctx.stroke();
+  } else if (kind === 'lines') {
+    ctx.beginPath();
+    for (let d = -H; d < W; d += s * 0.7) { ctx.moveTo(d, H); ctx.lineTo(d + H, 0); }
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+const CHROME_K = { none: 0, mac: 0.042, browser: 0.056 };
+function layout(W, H, st, vw, vh) {
+  const m = Math.min(W, H);
+  const pad = st.frame.pad * m;
+  const aw = Math.max(1, W - 2 * pad), ah = Math.max(1, H - 2 * pad);
+  if (st.frame.chrome === 'browser') st.frame.chrome = 'mac';
+  const a = vw / vh, k = CHROME_K[st.frame.chrome] || 0;
+  const bw = Math.min(aw, ah / (1 / a + k));
+  const ch = k * bw, vhh = bw / a, bh = vhh + ch;
+  const x = (W - bw) / 2, y = (H - bh) / 2;
+  return { x, y, w: bw, h: bh, ch, vx: x, vy: y + ch, vw: bw, vh: vhh, r: st.frame.radius * m };
+}
+function drawChrome(ctx, L, st) {
+  if (!L.ch) return;
+  ctx.fillStyle = '#F5F5F7'; ctx.fillRect(L.x, L.y, L.w, L.ch);
+  const line = Math.max(1, L.ch * 0.03);
+  ctx.fillStyle = '#E6E6EA'; ctx.fillRect(L.x, L.y + L.ch - line, L.w, line);
+  const r = L.ch * 0.13, cy = L.y + L.ch / 2;
+  let x = L.x + L.ch * 0.6;
+  ctx.fillStyle = '#D3D0DA';
+  for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(x, cy, r, 0, Math.PI * 2); ctx.fill(); x += r * 3.2; }
+  if (st.frame.chrome === 'browser') {
+    const ph = L.ch * 0.58, pw = L.w * 0.56, px = L.x + (L.w - pw) / 2;
+    rr(ctx, px, cy - ph / 2, pw, ph, ph / 2); ctx.fillStyle = '#FFFFFF'; ctx.fill();
+    const url = (st.frame.url || '').trim();
+    if (url) {
+      ctx.fillStyle = '#5C5966';
+      ctx.font = '500 ' + Math.round(ph * 0.5) + 'px system-ui, -apple-system, "Segoe UI", sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(url, px + pw / 2, cy + ph * 0.03, pw * 0.88);
+    }
+  }
+}
+function camBox(W, H, st) {
+  const m = Math.min(W, H), s = st.cam.size * m;
+  let w = s, hh = s;
+  if (st.cam.shape === 'tall') { w = s * 0.78; hh = s * 1.04; }
+  else if (st.cam.shape === 'wide') { w = s * 1.3; hh = s * 0.82; }
+  const r = st.cam.shape === 'circle' ? w / 2 : Math.min(w, hh) * 0.16;
+  const g = m * 0.04;
+  let x, y;
+  if (st.cam.x != null) { x = st.cam.x * W - w / 2; y = st.cam.y * H - hh / 2; }
+  else { const p = st.cam.pos; x = p[1] === 'l' ? g : W - g - w; y = p[0] === 't' ? g : H - g - hh; }
+  return { x: clamp(x, 0, W - w), y: clamp(y, 0, H - hh), w, h: hh, r };
+}
+function drawCam(ctx, W, H, st, cam) {
+  if (!cam || !st.cam.on || !cam.videoWidth) return;
+  const B = camBox(W, H, st), m = Math.min(W, H);
+  const col = st.cam.border === 'custom' ? st.cam.borderColor : BORDER_COLORS[st.cam.border];
+  const bw = col ? Math.max(2, Math.min(B.w, B.h) * 0.035) : 0;
+  if (st.cam.shadow > 0) {
+    drawShadowBox(ctx, B.x, B.y, B.w, B.h, B.r, m * 0.05 * st.cam.shadow, m * 0.015 * st.cam.shadow, 'rgba(20,10,40,' + (0.5 * st.cam.shadow) + ')', col || '#141218');
+  }
+  if (bw) { rr(ctx, B.x, B.y, B.w, B.h, B.r); ctx.fillStyle = col; ctx.fill(); }
+  ctx.save();
+  rr(ctx, B.x + bw, B.y + bw, B.w - 2 * bw, B.h - 2 * bw, Math.max(0, B.r - bw)); ctx.clip();
+  drawCover(ctx, cam, B.x + bw, B.y + bw, B.w - 2 * bw, B.h - 2 * bw, { mirror: st.cam.mirror, zoom: st.cam.zoom });
+  ctx.restore();
+}
+/* Zuschneiden und Abdecken. Alles in Anteilen des Bildschirmvideos (0 bis 1), damit es zu jeder Größe passt. */
+function cropRect(st, sv) {
+  const c = st.crop || { t: 0, b: 0, l: 0, r: 0 }, vw = sv.videoWidth, vh = sv.videoHeight;
+  return { sx: c.l * vw, sy: c.t * vh, sw: Math.max(2, vw * (1 - c.l - c.r)), sh: Math.max(2, vh * (1 - c.t - c.b)), vw, vh };
+}
+// Zoom = ein kleinerer Ausschnitt der Quelle, sanft hinein und wieder heraus. Zeit ist immer die Quellzeit.
+const ZOOM_RAMP = { soft: 1.0, normal: 0.6, fast: 0.35 };
+function zoomAt(st, t) {
+  let best = null, bp = 0;
+  const ramp = ZOOM_RAMP.normal || 0.6;
+  for (const z of st.zooms || []) {
+    if (t <= z.t0 || t >= z.t1) continue;
+    const d = Math.min(ramp, (z.t1 - z.t0) / 3);
+    const p = Math.min(1, (t - z.t0) / d, (z.t1 - t) / d);
+    const e = p * p * (3 - 2 * p);
+    if (e > bp) { bp = e; best = z; }
+  }
+  return best ? { s: 1 + (best.level - 1) * bp, x: best.x, y: best.y, p: bp } : null;
+}
+function videoGeom(W, H, st, sv) {
+  const C0 = cropRect(st, sv), L = layout(W, H, st, C0.sw, C0.sh);
+  const z = zoomAt(st, sv.currentTime);
+  if (!z || z.s <= 1.001) return { C: C0, C0, L };
+  const zw = C0.sw / z.s, zh = C0.sh / z.s;
+  const cx0 = C0.sx + C0.sw / 2, cy0 = C0.sy + C0.sh / 2;
+  const cx = cx0 + (z.x * C0.vw - cx0) * z.p, cy = cy0 + (z.y * C0.vh - cy0) * z.p;
+  const C = { sx: clamp(cx - zw / 2, C0.sx, C0.sx + C0.sw - zw), sy: clamp(cy - zh / 2, C0.sy, C0.sy + C0.sh - zh), sw: zw, sh: zh, vw: C0.vw, vh: C0.vh };
+  return { C, C0, L };
+}
+function maskRect(m, C, L) {
+  return { x: L.vx + (m.x * C.vw - C.sx) / C.sw * L.vw, y: L.vy + (m.y * C.vh - C.sy) / C.sh * L.vh, w: m.w * C.vw / C.sw * L.vw, h: m.h * C.vh / C.sh * L.vh };
+}
+const maskC = document.createElement('canvas');
+function drawMasks(ctx, st, sv, C, L) {
+  for (const m of st.masks || []) {
+    const R = maskRect(m, C, L);
+    if (R.w < 1 || R.h < 1) continue;
+    const rad = Math.min(R.w, R.h) * 0.22;
+    if (m.kind === 'blur') {
+      // Verpixeln und weich hochziehen: unlesbar, aber nicht als Klotz
+      const b = C.vw * 0.012;
+      maskC.width = Math.max(2, Math.round(m.w * C.vw / b)); maskC.height = Math.max(2, Math.round(m.h * C.vh / b));
+      maskC.getContext('2d').drawImage(sv, m.x * C.vw, m.y * C.vh, m.w * C.vw, m.h * C.vh, 0, 0, maskC.width, maskC.height);
+      ctx.save(); rr(ctx, R.x, R.y, R.w, R.h, rad); ctx.clip();
+      ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(maskC, R.x, R.y, R.w, R.h);
+      ctx.restore();
+    } else {
+      rr(ctx, R.x, R.y, R.w, R.h, rad); ctx.fillStyle = m.color || '#EDEDF0'; ctx.fill();
+    }
+  }
+}
+function drawFrame(ctx, W, H, st, sv, cv) {
+  const m = Math.min(W, H);
+  ctx.clearRect(0, 0, W, H);
+  if (st.bg.kind === 'image') st.bg.kind = 'color';
+  st.bg.pattern = 'none';
+  const bg = st.bg, img = null;
+  if (bg.kind === 'blur' && sv && sv.videoWidth) drawBlur(ctx, sv, W, H);
+  else if (img) drawCover(ctx, img, 0, 0, W, H);
+  else { ctx.fillStyle = bg.color; ctx.fillRect(0, 0, W, H); drawPattern(ctx, W, H, bg.pattern, bg.color); }
+  if (sv && sv.videoWidth) {
+    const { C, L } = videoGeom(W, H, st, sv);
+    if (st.frame.shadow > 0 && st.frame.pad > 0.002) {
+      drawShadowBox(ctx, L.x, L.y, L.w, L.h, L.r, m * 0.06 * st.frame.shadow, m * 0.02 * st.frame.shadow, 'rgba(20,10,40,' + (0.42 * st.frame.shadow) + ')', '#141218');
+    }
+    ctx.save();
+    rr(ctx, L.x, L.y, L.w, L.h, L.r); ctx.clip();
+    drawChrome(ctx, L, st);
+    ctx.drawImage(sv, C.sx, C.sy, C.sw, C.sh, L.vx, L.vy, L.vw, L.vh);
+    drawMasks(ctx, st, sv, C, L);
+    ctx.restore();
+  }
+  drawCam(ctx, W, H, st, cv);
+}
+function outSize(aspect, short) {
+  const a = ASPECTS[aspect] || 16 / 9;
+  let W, H;
+  if (a >= 1) { H = short; W = Math.round(short * a); } else { W = short; H = Math.round(short / a); }
+  return [W & ~1, H & ~1];
+}
+
+/* =========================================================================
+   Video laden (WebM-Aufnahmen kennen ihre Länge oft nicht, das reparieren wir)
+   ========================================================================= */
+async function loadVideo(v, url) {
+  v.preload = 'auto'; v.playsInline = true; v.crossOrigin = 'anonymous';
+  v.src = url;
+  await once(v, 'loadedmetadata', 8000);
+  if (!isFinite(v.duration)) {
+    v.currentTime = 1e7;
+    await once(v, 'durationchange', 4000);
+    v.currentTime = 0;
+    await once(v, 'seeked', 2000);
+  }
+  if (v.readyState < 2) await once(v, 'loadeddata', 4000);
+}
+const dur = () => { const d = S.sv && S.sv.duration; return isFinite(d) && d > 0 ? d : (S.project && S.project.duration) || 0; };
+const clips = () => S.st.clips;
+const clipLen = c => (c.e - c.s) / c.sp;
+const outDur = () => clips().reduce((a, c) => a + clipLen(c), 0);
+function outToSrc(T) {
+  const cl = clips(); let acc = 0;
+  for (let i = 0; i < cl.length; i++) {
+    const L = clipLen(cl[i]);
+    if (T < acc + L || i === cl.length - 1) return { i, t: cl[i].s + clamp(T - acc, 0, L) * cl[i].sp };
+    acc += L;
+  }
+  return { i: 0, t: 0 };
+}
+function srcToOut(i, t) {
+  const cl = clips(); i = clamp(i, 0, cl.length - 1);
+  let acc = 0;
+  for (let k = 0; k < i; k++) acc += clipLen(cl[k]);
+  return acc + clamp(t - cl[i].s, 0, cl[i].e - cl[i].s) / cl[i].sp;
+}
+const outNow = () => S.sv && S.st ? srcToOut(S.ci || 0, S.sv.currentTime) : 0;
+
+/* =========================================================================
+   Start: Mikrofon, Kamera, Einstellungen, Aufnahmen-Liste
+   ========================================================================= */
+const canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia && window.MediaRecorder);
+
+function setSwitch(el, on) { el.setAttribute('aria-checked', on ? 'true' : 'false'); }
+
+async function fillDevices() {
+  try {
+    const list = await navigator.mediaDevices.enumerateDevices();
+    const fill = (sel, kind, cur) => {
+      const devs = list.filter(d => d.kind === kind && d.label);
+      sel.replaceChildren(...devs.map(d => h('option', { value: d.deviceId, text: d.label.replace(/\s*\([0-9a-f]{4}:[0-9a-f]{4}\)\s*$/i, '') })));
+      if (cur && devs.some(d => d.deviceId === cur)) sel.value = cur;
+    };
+    fill($('#micSel'), 'audioinput', S.prefs.micId);
+    fill($('#camSel'), 'videoinput', S.prefs.camId);
+  } catch (e) { /* egal */ }
+}
+
+let meterRaf = 0, meterCtx = null;
+function startMeter(stream) {
+  stopMeter();
+  try {
+    meterCtx = new AudioContext();
+    const an = meterCtx.createAnalyser(); an.fftSize = 512;
+    meterCtx.createMediaStreamSource(stream).connect(an);
+    const buf = new Uint8Array(an.fftSize), bars = [$('#micMeter i'), $('#ckMeter i')];
+    const tick = () => {
+      an.getByteTimeDomainData(buf);
+      let peak = 0; for (const v of buf) peak = Math.max(peak, Math.abs(v - 128));
+      const wd = Math.min(100, peak / 64 * 100) + '%'; bars.forEach(b => { b.style.width = wd; });
+      meterRaf = requestAnimationFrame(tick);
+    };
+    tick();
+  } catch (e) { /* egal */ }
+}
+function stopMeter() { cancelAnimationFrame(meterRaf); if (meterCtx) { meterCtx.close().catch(() => {}); meterCtx = null; } }
+
+async function micOn(quiet) {
+  S.micErr = null;
+  try {
+    if (S.micStream) S.micStream.getTracks().forEach(t => t.stop());
+    S.micStream = await navigator.mediaDevices.getUserMedia({ audio: { deviceId: S.prefs.micId ? { ideal: S.prefs.micId } : undefined, echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+    const id = S.micStream.getAudioTracks()[0].getSettings().deviceId;
+    if (id) S.prefs.micId = id;
+    await fillDevices();
+    startMeter(S.micStream);
+    return true;
+  } catch (e) {
+    S.micStream = null; S.micErr = e;
+    if (!quiet) toast(devErr(e, 'Mikrofon', 'aufs'), 7000);
+    return false;
+  }
+}
+function devErr(e, was, art) {
+  const n = e && e.name;
+  if (n === 'NotReadableError' || n === 'AbortError') return (was === 'Kamera' ? 'Die Kamera' : 'Das Mikrofon') + ' wird gerade von einem anderen Programm benutzt. Schließ das Programm (z.B. ein Videocall) und versuch es nochmal.';
+  if (n === 'NotFoundError' || n === 'OverconstrainedError') return (was === 'Kamera' ? 'Keine Kamera' : 'Kein Mikrofon') + ' gefunden. Ist es angeschlossen?';
+  return 'Kein Zugriff ' + art + ' ' + was + '. Klick oben in der Adressleiste auf das Symbol links neben der Adresse, erlaube es und versuch es nochmal.' + (IS_MAC ? ' Am Mac zusätzlich: Systemeinstellungen > Datenschutz und Sicherheit > ' + was + ' > Chrome einschalten.' : '');
+}
+function micOff() { stopMeter(); if (S.micStream) S.micStream.getTracks().forEach(t => t.stop()); S.micStream = null; }
+async function camOn(quiet) {
+  S.camErr = null;
+  try {
+    if (S.camStream) S.camStream.getTracks().forEach(t => t.stop());
+    S.camStream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: S.prefs.camId ? { ideal: S.prefs.camId } : undefined, width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } } });
+    const id = S.camStream.getVideoTracks()[0].getSettings().deviceId;
+    if (id) S.prefs.camId = id;
+    const v = $('#camPreviewVideo'); v.srcObject = S.camStream; v.hidden = false; v.play().catch(() => {});
+    $('#camPreviewText').hidden = true;
+    await fillDevices();
+    return true;
+  } catch (e) {
+    S.camStream = null; S.camErr = e;
+    if (!quiet) toast(devErr(e, 'Kamera', 'auf die'), 7000);
+    return false;
+  }
+}
+function camOff() {
+  if (S.camStream) S.camStream.getTracks().forEach(t => t.stop());
+  S.camStream = null;
+  const v = $('#camPreviewVideo'); v.srcObject = null; v.hidden = true; $('#camPreviewText').hidden = false;
+}
+function renderPrefs() {
+  const p = S.prefs;
+  setSwitch($('#micSw'), p.mic); setSwitch($('#camSw'), p.cam); setSwitch($('#sysSw'), p.sys);
+  const micLive = p.mic && !!S.micStream, camLive = p.cam && !!S.camStream;
+  $('#micSel').hidden = !micLive || !$('#micSel').options.length; $('#micMeter').hidden = !micLive;
+  $('#micOff').hidden = micLive && !!$('#micSel').options.length; $('#micOff').textContent = p.mic ? (micLive ? 'An' : 'An, startet mit der Aufnahme') : 'Aus';
+  $('#camSel').hidden = !camLive || !$('#camSel').options.length;
+  $('#camOff').hidden = camLive && !!$('#camSel').options.length; $('#camOff').textContent = p.cam ? (camLive ? 'An' : 'An, startet mit der Aufnahme') : 'Aus';
+  $$('#cdSeg button').forEach(b => b.classList.toggle('on', +b.dataset.v === p.countdown));
+  $$('#surfSeg button').forEach(b => b.classList.toggle('on', b.dataset.v === p.surface));
+  $('#surfHint').textContent = {
+    monitor: 'Alles, was auf deinem Bildschirm passiert, auch wenn du zwischen Programmen wechselst.',
+    window: 'Nur ein Programmfenster, zum Beispiel deine Präsentation. Der Rest bleibt privat.',
+    browser: 'Nur ein Browser-Tab, mit dem Ton aus dem Tab. Perfekt für Webseiten-Touren.',
+  }[p.surface];
+}
+async function permGranted(name) {
+  try { return (await navigator.permissions.query({ name })).state === 'granted'; } catch (e) { return false; }
+}
+async function warmStreams() {
+  // Ist die Erlaubnis schon da, starten wir die Vorschau gleich. Sonst erst auf Klick.
+  if (S.prefs.mic && !S.micStream && await permGranted('microphone')) await micOn();
+  if (S.prefs.cam && !S.camStream && await permGranted('camera')) await camOn();
+  renderPrefs();
+}
+
+function bindHome() {
+  $('#micSw').onclick = async () => {
+    S.prefs.mic = !S.prefs.mic; savePrefs();
+    if (S.prefs.mic) { if (!await micOn()) { S.prefs.mic = false; savePrefs(); } } else micOff();
+    renderPrefs();
+  };
+  $('#camSw').onclick = async () => {
+    S.prefs.cam = !S.prefs.cam; savePrefs();
+    if (S.prefs.cam) { if (!await camOn()) { S.prefs.cam = false; savePrefs(); } } else camOff();
+    renderPrefs();
+  };
+  $('#sysSw').onclick = () => { S.prefs.sys = !S.prefs.sys; savePrefs(); renderPrefs(); };
+  $('#micSel').onchange = async e => { S.prefs.micId = e.target.value; savePrefs(); await micOn(); renderPrefs(); };
+  $('#camSel').onchange = async e => { S.prefs.camId = e.target.value; savePrefs(); await camOn(); renderPrefs(); };
+  $$('#cdSeg button').forEach(b => b.onclick = () => { S.prefs.countdown = +b.dataset.v; savePrefs(); renderPrefs(); });
+  $$('#surfSeg button').forEach(b => b.onclick = () => { S.prefs.surface = b.dataset.v; savePrefs(); renderPrefs(); });
+  $('#startBtn').onclick = openCheck;
+  bindCheck();
+  $('#openBtn').onclick = () => $('#openFile').click();
+  $('#openFile').onchange = async e => {
+    const f = e.target.files && e.target.files[0]; e.target.value = '';
+    if (f) await importBlob(f, f.name.replace(/\.[^.]+$/, ''));
+  };
+  const ua = navigator.userAgent, warn = $('#browserWarn');
+  if (!canRecord) { warn.hidden = false; warn.textContent = 'In diesem Browser kann nicht aufgenommen werden. Öffne die Datei bitte in Chrome, Edge oder Brave. Videos öffnen und bearbeiten klappt trotzdem.'; }
+  else if (/Firefox\//.test(ua) || (/Safari\//.test(ua) && !/Chrome|Chromium|Edg\//.test(ua))) { warn.hidden = false; warn.textContent = 'Kleiner Hinweis: In diesem Browser kann kein Computer-Ton aufgenommen werden. Für alles zusammen nimm am besten Chrome.'; }
+}
+
+async function renderLibrary() {
+  const grid = $('#libGrid');
+  const list = (await Store.all('projects')).sort((a, b) => b.created - a.created);
+  $('#libInfo').textContent = list.length ? (list.length === 1 ? '1 Aufnahme' : list.length + ' Aufnahmen') + ', gespeichert in diesem Browser. Exportier, was du behalten willst.' : '';
+  if (!list.length) { grid.replaceChildren(h('div', { class: 'empty', text: 'Hier landen deine Aufnahmen. Drück auf „Aufnahme starten“ und leg los.' })); return; }
+  grid.replaceChildren(...list.map(p => {
+    const d = new Date(p.created);
+    const del = h('button', { class: 'btn btn-sm icon-btn del', type: 'button', 'aria-label': 'Aufnahme löschen', onclick: async e => {
+      e.stopPropagation();
+      if (!confirm('„' + p.name + '“ wirklich löschen? Das geht nicht rückgängig.')) return;
+      await Store.del('projects', p.id); await Store.del('media', p.id); renderLibrary();
+    } }, icon('trash'));
+    const thumb = h('div', { class: 'thumb' });
+    if (p.thumb) thumb.style.backgroundImage = 'url(' + p.thumb + ')';
+    return h('div', { class: 'card', role: 'button', tabindex: '0', onclick: () => openProject(p.id), onkeydown: e => { if (e.key === 'Enter') openProject(p.id); } },
+      thumb, del,
+      h('div', { class: 'meta' }, h('b', { text: p.name }), h('span', { text: d.toLocaleDateString('de-DE') + ', ' + fmt(p.duration) + ' Min.' })));
+  }));
+}
+
+function showView(id) {
+  S.view = id;
+  $$('.view').forEach(v => v.classList.toggle('on', v.id === id));
+  if (id === 'home') { renderLibrary(); warmStreams(); }
+}
+
+/* =========================================================================
+   Aufnahme
+   ========================================================================= */
+// Aufnehmen als WebM mit H.264: Chromes bewährtester Weg, nutzt den Grafikchip (läuft flüssig) und liefert zuverlässig Daten.
+// MP4 direkt aus dem Recorder ist in Chrome noch neu und lieferte manchmal leere oder kaputte Dateien.
+const SCREEN_MIMES = ['video/webm;codecs=h264,opus', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm', 'video/mp4;codecs=avc1,opus', 'video/mp4'];
+const CAM_MIMES = ['video/webm;codecs=h264', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm', 'video/mp4'];
+const pickMime = list => (window.MediaRecorder && list.find(m => MediaRecorder.isTypeSupported(m))) || '';
+let R = null;
+
+/* Kurzer Geräte-Check: Kamera, Mikrofon und Ton prüfen, bevor die Aufnahme startet */
+const SURF_NAME = { monitor: 'Ganzer Bildschirm', window: 'Ein Fenster', browser: 'Ein Tab' };
+function ckRow(id, state, text) { const r = $('#' + id); r.dataset.s = state; r.querySelector('.txt span').textContent = text; }
+function openCheck() {
+  if (R || S.starting) return;
+  if (!canRecord) { toast('Aufnehmen geht in diesem Browser leider nicht. Nimm Chrome, Edge oder Brave.'); return; }
+  $('#ckModal').hidden = false;
+  runCheck();
+  setTimeout(() => $('#ckGo').focus(), 50);
+}
+function closeCheck() {
+  $('#ckModal').hidden = true;
+  const v = $('#ckCamVideo'); v.srcObject = null; v.hidden = true;
+}
+let ckToken = 0;
+async function runCheck() {
+  const tok = ++ckToken, p = S.prefs;
+  setSwitch($('#ckCamSw'), p.cam); setSwitch($('#ckMicSw'), p.mic); setSwitch($('#ckSysSw'), p.sys); setSwitch($('#ckPipSw'), p.pip);
+  $('#ckRetry').hidden = true;
+  ckRow('ckScreen', 'info', SURF_NAME[p.surface] + '. Chrome fragt gleich, was du teilen willst.' + (IS_MAC ? ' Erste Aufnahme am Mac? Dann muss Chrome in den Systemeinstellungen unter „Bildschirm- und Systemaudioaufnahme“ erlaubt sein.' : ''));
+  ckRow('ckSys', p.sys ? 'info' : 'off', p.sys ? 'Setz im Auswahlfenster den Haken bei „Audio teilen“.' : 'Aus');
+  $('#ckPipTxt').textContent = 'Kleines Fenster mit Pause und Stopp, das über allen Programmen liegt.' + (p.surface === 'monitor' ? ' Beim ganzen Bildschirm ist es im Video zu sehen.' : ' Es ist nicht im Video.') + ' Ohne sie stoppst du, indem du zu diesem Tab zurückkommst.';
+  const cv = $('#ckCamVideo');
+  ckRow('ckCam', p.cam ? 'wait' : 'off', p.cam ? 'Wird geprüft …' : 'Aus');
+  ckRow('ckMic', p.mic ? 'wait' : 'off', p.mic ? 'Wird geprüft …' : 'Aus');
+  $('#ckMeter').hidden = true;
+  $('#ckLead').textContent = p.cam || p.mic ? 'Einen Moment, ich prüfe Kamera und Mikrofon.' : 'Alles bereit.';
+  let bad = false;
+  if (p.cam) {
+    const ok = S.camStream && S.camStream.getVideoTracks().some(t => t.readyState === 'live') ? true : await camOn(true);
+    if (tok !== ckToken) return;
+    if (ok) { ckRow('ckCam', 'ok', 'Bereit. So siehst du aus.'); cv.srcObject = S.camStream; cv.hidden = false; cv.play().catch(() => {}); $('#ckCamEmpty').hidden = true; }
+    else { bad = true; ckRow('ckCam', 'bad', devErr(S.camErr, 'Kamera', 'auf die')); cv.hidden = true; $('#ckCamEmpty').hidden = false; $('#ckCamEmpty').textContent = 'Keine Kamera'; }
+  } else { cv.srcObject = null; cv.hidden = true; $('#ckCamEmpty').hidden = false; $('#ckCamEmpty').textContent = 'Kamera aus'; }
+  if (p.mic) {
+    const ok = S.micStream && S.micStream.getAudioTracks().some(t => t.readyState === 'live') ? (startMeter(S.micStream), true) : await micOn(true);
+    if (tok !== ckToken) return;
+    if (ok) { ckRow('ckMic', 'ok', 'Bereit. Sag kurz etwas, der Balken sollte sich bewegen.'); $('#ckMeter').hidden = false; }
+    else { bad = true; ckRow('ckMic', 'bad', devErr(S.micErr, 'Mikrofon', 'aufs')); }
+  }
+  renderPrefs();
+  $('#ckRetry').hidden = !bad;
+  $('#ckLead').textContent = bad ? 'Etwas klappt noch nicht. Du kannst es beheben und nochmal prüfen, oder es ausschalten und trotzdem aufnehmen.' : 'Alles bereit. Wenn du auf „Aufnahme starten“ klickst, fragt Chrome, was du teilen willst.';
+}
+function bindCheck() {
+  $('#ckCancel').onclick = closeCheck;
+  $('#ckModal').addEventListener('click', e => { if (e.target.id === 'ckModal') closeCheck(); });
+  $('#ckModal').addEventListener('keydown', e => { if (e.key === 'Escape') closeCheck(); });
+  $('#ckRetry').onclick = runCheck;
+  $('#ckCamSw').onclick = () => { S.prefs.cam = !S.prefs.cam; savePrefs(); if (!S.prefs.cam) camOff(); runCheck(); };
+  $('#ckMicSw').onclick = () => { S.prefs.mic = !S.prefs.mic; savePrefs(); if (!S.prefs.mic) micOff(); runCheck(); };
+  $('#ckSysSw').onclick = () => { S.prefs.sys = !S.prefs.sys; savePrefs(); renderPrefs(); runCheck(); };
+  $('#ckPipSw').onclick = () => { S.prefs.pip = !S.prefs.pip; savePrefs(); setSwitch($('#ckPipSw'), S.prefs.pip); };
+  // Wichtig: Die Aufnahme muss direkt in diesem Klick starten, sonst lässt Chrome das Auswahlfenster nicht zu
+  $('#ckGo').onclick = () => { ckToken++; closeCheck(); startRecording(); };
+}
+async function startRecording() {
+  if (R || S.starting) return;
+  S.starting = true;
+  try { await startRecordingInner(); } finally { S.starting = false; }
+}
+async function startRecordingInner() {
+  if (!canRecord) { toast('Aufnehmen geht in diesem Browser leider nicht. Nimm Chrome, Edge oder Brave.'); return; }
+  let disp;
+  // Bildschirm-Auswahl und schwebende Steuerung starten im selben Klick, sonst blockiert Chrome das schwebende Fenster
+  const dmP = navigator.mediaDevices.getDisplayMedia({
+      video: { displaySurface: S.prefs.surface, frameRate: { ideal: 30, max: 30 }, width: { max: 2560 }, height: { max: 1600 } },
+      audio: S.prefs.sys ? { suppressLocalAudioPlayback: false } : false,
+      systemAudio: S.prefs.sys ? 'include' : 'exclude',
+      selfBrowserSurface: 'exclude', surfaceSwitching: 'include', monitorTypeSurfaces: 'include',
+  });
+  // Schwebende Steuerung nur, wenn gewünscht
+  if (S.prefs.pip) openPip(true);
+  try {
+    disp = await dmP;
+  } catch (e) {
+    closePip();
+    if (e && e.name === 'NotAllowedError' && /system|permission/i.test(e.message || '')) toast('Dein Mac blockiert die Bildschirmaufnahme. Erlaube sie unter Systemeinstellungen, Datenschutz und Sicherheit, Bildschirm- und Systemaudioaufnahme, und starte den Browser neu.', 9000);
+    return;
+  }
+  if (S.prefs.mic && !S.micStream) await micOn();
+  if (S.prefs.cam && !S.camStream) await camOn();
+  stopMeter();
+
+  const vtrack = disp.getVideoTracks()[0];
+  try { vtrack.contentHint = 'detail'; } catch (e) { /* egal */ }
+  let ac = null; const audioTracks = [];
+  const sysTracks = disp.getAudioTracks();
+  if (S.prefs.sys && !sysTracks.length) toast('Der Computer-Ton wurde nicht freigegeben. Setz beim nächsten Mal im Auswahlfenster den Haken bei „Audio teilen“.', 6000);
+  const mic = S.prefs.mic ? S.micStream : null;
+  if (sysTracks.length || mic) {
+    ac = new AudioContext();
+    // Manche Browser starten den Ton angehalten, dann wäre die Aufnahme stumm
+    try { if (ac.state === 'suspended') await Promise.race([ac.resume(), new Promise(r => setTimeout(r, 500))]); } catch (e) { /* egal */ }
+    const dest = ac.createMediaStreamDestination();
+    if (sysTracks.length) ac.createMediaStreamSource(new MediaStream(sysTracks)).connect(dest);
+    if (mic) ac.createMediaStreamSource(mic).connect(dest);
+    audioTracks.push(...dest.stream.getAudioTracks());
+  }
+  const sMime = pickMime(SCREEN_MIMES);
+  const vs = (vtrack.getSettings && vtrack.getSettings()) || {};
+  const vbr = Math.round(clamp((vs.width || 1920) * (vs.height || 1080) * 30 * 0.1, 4e6, 20e6));
+  const sStream = new MediaStream([vtrack, ...audioTracks]);
+  let recS;
+  try { recS = new MediaRecorder(sStream, { mimeType: sMime || undefined, videoBitsPerSecond: vbr, audioBitsPerSecond: 160000, videoKeyFrameIntervalDuration: 1000 }); }
+  catch (e) {
+    try { recS = new MediaRecorder(sStream); }
+    catch (e2) { disp.getTracks().forEach(t => t.stop()); if (ac) ac.close().catch(() => {}); closePip(); toast('Die Aufnahme ließ sich in diesem Browser nicht starten. Nimm bitte Chrome, Edge oder Brave.', 7000); return; }
+  }
+  let recC = null;
+  const cam = S.prefs.cam ? S.camStream : null;
+  if (cam) {
+    const cMime = pickMime(CAM_MIMES);
+    try { recC = new MediaRecorder(new MediaStream(cam.getVideoTracks()), { mimeType: cMime || undefined, videoBitsPerSecond: 3.5e6, videoKeyFrameIntervalDuration: 1000 }); }
+    catch (e) { recC = null; toast('Die Kamera ließ sich nicht mit aufnehmen. Der Bildschirm wird trotzdem aufgenommen.', 6000); }
+  }
+
+  const surface = (vtrack.getSettings && vtrack.getSettings().displaySurface) || S.prefs.surface;
+  R = { disp, ac, recS, recC, chunksS: [], chunksC: [], t0: 0, pausedAt: 0, pausedTotal: 0, paused: false, started: false, cancelled: false, surface, marks: [], viaPip: false };
+  recS.ondataavailable = e => { if (e.data && e.data.size) R && R.chunksS.push(e.data); };
+  if (recC) recC.ondataavailable = e => { if (e.data && e.data.size) R && R.chunksC.push(e.data); };
+  recS.onerror = () => { toast('Die Aufnahme wurde vom Browser unterbrochen. Was bis hierhin aufgenommen ist, bleibt erhalten.', 7000); if (R && R.started) stopRecording(true); };
+  if (recC) recC.onerror = () => toast('Die Kamera-Aufnahme ist ausgefallen. Der Bildschirm wird weiter aufgenommen.', 6000);
+  vtrack.addEventListener('ended', () => { if (R) { if (R.started) stopRecording(true); else R.cancelled = true; } });
+
+  showView('rec');
+  // Beim ganzen Bildschirm ist die schwebende Steuerung im Video, außer sie liegt auf einem zweiten Bildschirm
+  const whole = surface === 'monitor';
+  const twoScreens = !!(window.screen && window.screen.isExtended);
+  let hint;
+  if (!S.pip) {
+    hint = 'Zum Stoppen kommst du einfach zurück zu diesem Tab und klickst auf „Stopp“.' + (surface !== 'browser' ? ' Den Moment, in dem du hierher wechselst, schneidet das Tool automatisch raus.' : '');
+  } else if (!whole) {
+    hint = 'Die schwebende Steuerung liegt über allen Fenstern und ist in deiner Aufnahme nicht zu sehen.';
+  } else if (twoScreens) {
+    hint = 'Du hast 2 Bildschirme: Schieb die schwebende Steuerung auf den Bildschirm, den du nicht aufnimmst, dann ist sie nicht im Video.';
+  } else {
+    hint = 'Beim ganzen Bildschirm ist die schwebende Steuerung im Video zu sehen. Schieb sie in eine Ecke oder blende sie aus.';
+  }
+  $('#recHint').textContent = hint + ' Chromes Freigabe-Leiste kannst du mit „Ausblenden“ wegklicken.';
+  pipHint(whole && twoScreens ? 'Schieb mich auf deinen 2. Bildschirm, dann bin ich nicht im Video.' : '');
+  updateRecUI();
+  if (S.prefs.countdown > 0) await countdown(S.prefs.countdown);
+  if (!R || R.cancelled || vtrack.readyState === 'ended') { await stopRecording(false); return; }
+  try { recS.start(1000); if (recC) recC.start(1000); }
+  catch (e) { toast('Die Aufnahme ließ sich nicht starten. Versuch es bitte nochmal.', 6000); await stopRecording(false); return; }
+  R.t0 = performance.now(); R.started = true; R.startVisible = !document.hidden;
+  R.timer = setInterval(updateRecUI, 250);
+  updateRecUI();
+  checkBlank(vtrack);
+}
+const IS_MAC = /Mac/i.test((navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent);
+// Liefert die Bildschirmfreigabe nur ein leeres Bild (typisch: Mac ohne Erlaubnis für Chrome), sofort Bescheid geben
+async function checkBlank(track) {
+  const v = document.createElement('video'); v.muted = true; v.playsInline = true;
+  v.srcObject = new MediaStream([track]);
+  try { await v.play(); } catch (e) { return; }
+  let blank = 0;
+  for (let i = 0; i < 4; i++) {
+    await new Promise(r => setTimeout(r, 700));
+    if (!R || track.readyState !== 'live') break;
+    if (!v.videoWidth) { blank++; continue; }
+    const c = document.createElement('canvas'); c.width = 64; c.height = 36;
+    const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(v, 0, 0, 64, 36);
+    const d = g.getImageData(0, 0, 64, 36).data; let sum = 0, sq = 0, n = d.length / 4;
+    for (let j = 0; j < d.length; j += 4) { const y = (d[j] * 3 + d[j + 1] * 6 + d[j + 2]) / 10; sum += y; sq += y * y; }
+    const mean = sum / n, sd = Math.sqrt(Math.max(0, sq / n - mean * mean));
+    if (sd < 2) blank++; else { blank = 0; break; }
+  }
+  v.srcObject = null;
+  if (blank >= 3 && R) toast(IS_MAC ? 'Die Aufnahme zeigt nur ein leeres Bild. Dein Mac hat die Bildschirmaufnahme für Chrome wohl noch nicht erlaubt: Systemeinstellungen > Datenschutz und Sicherheit > Bildschirm- und Systemaudioaufnahme > Chrome einschalten. Danach Chrome ganz beenden und neu öffnen.' : 'Die Aufnahme zeigt nur ein leeres Bild. Stopp sie bitte und versuch es mit „Fenster“ oder „Tab“.', 15000);
+}
+function countdown(n) {
+  return new Promise(res => {
+    const box = $('#countdown'), num = $('#cdNum');
+    box.hidden = false;
+    const step = () => {
+      if (!R || R.cancelled) { box.hidden = true; res(); return; }
+      if (n <= 0) { box.hidden = true; res(); return; }
+      num.textContent = n; num.style.animation = 'none'; void num.offsetWidth; num.style.animation = '';
+      if (S.pip) { const c = S.pip.document.getElementById('pipT'); if (c) c.textContent = 'Gleich: ' + n; }
+      document.title = n + ' · ' + TOOL.name;
+      n--; setTimeout(step, 1000);
+    };
+    step();
+  });
+}
+const recElapsed = () => !R || !R.started ? 0 : ((R.paused ? R.pausedAt : performance.now()) - R.t0 - R.pausedTotal) / 1000;
+function updateRecUI() {
+  if (!R) return;
+  const t = fmt(recElapsed());
+  $('#recTime').textContent = t;
+  $('#recLabel').textContent = !R.started ? 'Gleich geht es los' : R.paused ? 'Pausiert' : 'Aufnahme läuft';
+  $('#recState').classList.toggle('paused', R.paused || !R.started);
+  const pb = $('#pauseBtn'); pb.replaceChildren(icon(R.paused ? 'rec' : 'pause'), h('span', { text: R.paused ? 'Weiter' : 'Pause' }));
+  pb.disabled = !R.started;
+  document.title = R.started ? (R.paused ? 'Pausiert ' : '● ') + t + ' · ' + TOOL.name : document.title;
+  if (S.pip) {
+    const d = S.pip.document;
+    const tt = d.getElementById('pipT'); if (tt && R.started) tt.textContent = (R.paused ? 'Pause ' : '') + t;
+    const pp = d.getElementById('pipP'); if (pp) pp.textContent = R.paused ? 'Weiter' : 'Pause';
+  }
+}
+function togglePause() {
+  if (!R || !R.started) return;
+  if (R.paused) {
+    R.pausedTotal += performance.now() - R.pausedAt; R.paused = false;
+    try { R.recS.resume(); if (R.recC && R.recC.state === 'paused') R.recC.resume(); } catch (e) { /* egal */ }
+  } else {
+    R.pausedAt = performance.now(); R.paused = true;
+    try { R.recS.pause(); if (R.recC && R.recC.state === 'recording') R.recC.pause(); } catch (e) { /* egal */ }
+  }
+  updateRecUI();
+}
+async function stopRecording(save) {
+  if (!R) return;
+  const r = R; R = null;
+  clearInterval(r.timer);
+  const length = r.started ? ((r.paused ? r.pausedAt : performance.now()) - r.t0 - r.pausedTotal) / 1000 : 0;
+  const cut = autoCut(r, length);
+  // Nie hängen bleiben: Meldet der Recorder sich nicht, geht es nach 4 Sekunden trotzdem weiter
+  const stopRec = rec => rec && rec.state !== 'inactive' ? new Promise(res => { rec.addEventListener('stop', res, { once: true }); setTimeout(res, 4000); try { rec.stop(); } catch (e) { res(); } }) : Promise.resolve();
+  await Promise.all([stopRec(r.recS), stopRec(r.recC)]);
+  r.disp.getTracks().forEach(t => t.stop());
+  if (r.ac) r.ac.close().catch(() => {});
+  micOff(); camOff();
+  closePip(); S.pipHint = '';
+  $('#countdown').hidden = true;
+  document.title = TOOL.name;
+  if (!save || !r.started) { showView('home'); if (r.started) toast('Aufnahme verworfen.'); return; }
+  const screen = new Blob(r.chunksS, { type: (r.recS.mimeType || 'video/webm').split(';')[0] });
+  const cam = r.chunksC.length ? new Blob(r.chunksC, { type: (r.recC.mimeType || 'video/webm').split(';')[0] }) : null;
+  if (screen.size < 2000) { showView('home'); toast('Die Aufnahme ist leer geblieben. Versuch es bitte nochmal.'); return; }
+  const now = new Date();
+  const name = 'Aufnahme vom ' + now.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) + ', ' + now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  const id = await createProject({ screen, cam, duration: length, name, clips: cut ? [{ s: cut.s, e: cut.e, sp: 1 }] : null });
+  await openProject(id);
+  if (cut) toast('Der Wechsel zu diesem Tab wurde automatisch rausgeschnitten. Mit den farbigen Griffen holst du ihn zurück.', 6000);
+}
+// Wird der ganze Bildschirm aufgenommen, sieht man am Anfang und Ende den Recorder-Tab. Diese Stellen schneiden wir weg.
+function autoCut(r, length) {
+  if (!r.started || (r.surface !== 'monitor' && r.surface !== 'window')) return null;
+  let s = 0, e = length;
+  if (r.startVisible) { const hide = r.marks.find(m => !m.v); if (hide) s = hide.t + 0.15; }
+  if (!document.hidden && !r.viaPip) { const show = [...r.marks].reverse().find(m => m.v); if (show && show.t > s) e = show.t - 0.2; }
+  else if (r.viaPip) e = length - 0.4;
+  if (s < 0.3 && e > length - 0.5) return null;
+  if (e - s < 1) return null;
+  return { s: Math.max(0, s), e: Math.min(length, e) };
+}
+document.addEventListener('visibilitychange', () => { if (R && R.started) R.marks.push({ t: recElapsed(), v: !document.hidden }); });
+
+/* Mini-Steuerung: schwebendes Fenster über allem (Chrome, Edge) */
+async function openPip(silent) {
+  if (S.pip) return;
+  if (!('documentPictureInPicture' in window)) { if (!silent) toast('Die schwebende Steuerung gibt es nur in Chrome und Edge.'); return; }
+  try {
+    const w = await documentPictureInPicture.requestWindow({ width: 330, height: 104 });
+    const d = w.document;
+    [$('#appStyle'), $('#brandStyle')].forEach(s => { const c = d.createElement('style'); c.textContent = s.textContent; d.head.append(c); });
+    d.body.className = 'pip';
+    const t = d.createElement('div'); t.className = 't'; t.id = 'pipT'; t.textContent = R && R.started ? fmt(recElapsed()) : 'Gleich…';
+    const p = d.createElement('button'); p.className = 'btn'; p.id = 'pipP'; p.textContent = 'Pause'; p.onclick = togglePause;
+    const s = d.createElement('button'); s.className = 'btn btn-primary'; s.textContent = 'Stopp'; s.onclick = () => { if (R && R.started) { R.viaPip = true; stopRecording(true); } else if (R) { R.cancelled = true; } else closePip(); };
+    const hn = d.createElement('div'); hn.className = 'h'; hn.id = 'pipH'; hn.textContent = S.pipHint || ''; hn.hidden = !S.pipHint;
+    d.body.append(t, p, s, hn);
+    S.pip = w;
+    w.addEventListener('pagehide', () => { S.pip = null; });
+    $('#pipBtn').hidden = true;
+  } catch (e) { if (!silent) toast('Die schwebende Steuerung ließ sich nicht öffnen.'); }
+}
+function pipHint(text) {
+  S.pipHint = text;
+  const el = S.pip && S.pip.document.getElementById('pipH');
+  if (el) { el.textContent = text; el.hidden = !text; }
+}
+function closePip() { if (S.pip) { try { S.pip.close(); } catch (e) { /* egal */ } S.pip = null; } $('#pipBtn').hidden = false; }
+
+/* =========================================================================
+   Projekte
+   ========================================================================= */
+async function createProject({ screen, cam, duration, name, clips }) {
+  const id = 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const settings = defaults();
+  if (!cam) settings.cam.on = false;
+  if (clips) settings.clips = clips;
+  await Store.put('media', { id, screen, cam });
+  await Store.put('projects', { id, name, created: Date.now(), duration, hasCam: !!cam, settings, thumb: null });
+  if (S.memOnly) toast('Dieser Browser lässt nichts dauerhaft speichern. Exportier dein Video, bevor du den Tab schließt.', 7000);
+  return id;
+}
+async function importBlob(blob, name) {
+  const v = document.createElement('video'); v.muted = true;
+  const url = URL.createObjectURL(blob);
+  await loadVideo(v, url);
+  const d = isFinite(v.duration) ? v.duration : 0;
+  URL.revokeObjectURL(url);
+  if (!v.videoWidth) { toast('Dieses Video kann der Browser leider nicht öffnen.'); return null; }
+  const id = await createProject({ screen: blob, cam: null, duration: d, name: name || 'Video' });
+  await openProject(id);
+  return id;
+}
+async function openProject(id) {
+  const meta = await Store.get('projects', id), media = await Store.get('media', id);
+  if (!meta || !media) { toast('Diese Aufnahme gibt es nicht mehr.'); return; }
+  closeProject();
+  S.project = meta; S.st = mergeDefaults(meta.settings || defaults()); meta.settings = S.st;
+  S.undo = []; S.redo = []; S.lastState = JSON.stringify(S.st);
+  S.urls.screen = URL.createObjectURL(media.screen);
+  S.sv = document.createElement('video');
+  await loadVideo(S.sv, S.urls.screen);
+  if (media.cam) {
+    S.urls.cam = URL.createObjectURL(media.cam);
+    S.cv = document.createElement('video'); S.cv.muted = true;
+    await loadVideo(S.cv, S.urls.cam);
+  }
+  if (isFinite(S.sv.duration) && S.sv.duration > 0 && Math.abs(S.sv.duration - meta.duration) > 0.5) { meta.duration = S.sv.duration; }
+  if (!Array.isArray(S.st.clips) || !S.st.clips.length) {
+    const tr = S.st.trim || {};
+    S.st.clips = [{ s: tr.start || 0, e: tr.end == null ? dur() : tr.end, sp: 1 }];
+  }
+  delete S.st.trim;
+  S.st.clips.forEach(c => { c.e = Math.min(c.e, dur()); c.s = Math.min(c.s, c.e - 0.1); });
+  S.lastState = JSON.stringify(S.st); S.ci = 0; S.sel = null; S.selMask = null; S.selZoom = null;
+  S.analysis = null; S.analyzing = false; S.anaToken = (S.anaToken || 0) + 1; $('#anaChip').hidden = true;
+  const sv = S.sv;
+  // Nur neu malen, wenn das Video wirklich ein neues Bild hat (spart auf 120-Hz-Bildschirmen die Hälfte der Arbeit)
+  S.rvfc = 'requestVideoFrameCallback' in HTMLVideoElement.prototype;
+  if (S.rvfc) [S.sv, S.cv].forEach(v => { if (!v) return; const f = () => { if (v !== S.sv && v !== S.cv) return; S.dirty = true; v.requestVideoFrameCallback(f); }; v.requestVideoFrameCallback(f); });
+  sv.onplay = () => { S.playing = true; updatePlayBtn(); };
+  sv.onpause = () => { S.playing = false; updatePlayBtn(); if (S.cv) S.cv.pause(); S.dirty = true; };
+  sv.onseeked = () => { S.dirty = true; };
+  sv.onended = () => { S.playing = false; updatePlayBtn(); };
+  applyAudio();
+  $('#nameInput').value = meta.name;
+  showView('edit');
+  renderPanel(); fitStage(); updateUndoBtns(); renderTimeline();
+  seek(0);
+  buildThumbs();
+  scheduleSave(200);
+  if (!meta.autoZoomDone) setTimeout(() => { if (S.project === meta) runAutoZoom(true); }, 600);
+}
+function closeProject() {
+  if (S.sv) { S.sv.pause(); S.sv.removeAttribute('src'); S.sv.load(); }
+  if (S.cv) { S.cv.pause(); S.cv.removeAttribute('src'); S.cv.load(); }
+  Object.values(S.urls).forEach(u => URL.revokeObjectURL(u));
+  S.urls = {}; S.sv = null; S.cv = null; S.project = null; S.playing = false;
+  S.thumbToken = (S.thumbToken || 0) + 1;
+  S.anaToken = (S.anaToken || 0) + 1; S.analyzing = false;
+}
+let saveT = 0;
+function scheduleSave(ms = 700) {
+  clearTimeout(saveT);
+  saveT = setTimeout(saveProject, ms);
+}
+async function saveProject() {
+  const p = S.project; if (!p) return;
+  try {
+    if (S.sv && S.sv.videoWidth) {
+      const [W, H] = outSize(S.st.aspect, 270);
+      const c = document.createElement('canvas'); c.width = W; c.height = H;
+      drawFrame(c.getContext('2d'), W, H, S.st, S.sv, S.cv);
+      p.thumb = c.toDataURL('image/jpeg', 0.72);
+    }
+  } catch (e) { /* egal */ }
+  await Store.put('projects', p);
+}
+
+/* =========================================================================
+   Editor
+   ========================================================================= */
+function commit() {
+  const now = JSON.stringify(S.st);
+  if (now === S.lastState) return;
+  S.undo.push(S.lastState); if (S.undo.length > 150) S.undo.shift();
+  S.redo = []; S.lastState = now;
+  afterChange(false);
+}
+function undo() { if (!S.undo.length) return; S.redo.push(S.lastState); restore(S.undo.pop()); }
+function redo() { if (!S.redo.length) return; S.undo.push(S.lastState); restore(S.redo.pop()); }
+function restore(json) {
+  const T = outNow();
+  S.lastState = json;
+  const prevAspect = S.st.aspect;
+  S.st = S.project.settings = JSON.parse(json);
+  if (S.st.aspect !== prevAspect) fitStage();
+  if (S.sel != null && S.sel >= clips().length) S.sel = null;
+  if (S.selMask != null && S.selMask >= (S.st.masks || []).length) S.selMask = null;
+  if (S.selZoom != null && S.selZoom >= (S.st.zooms || []).length) S.selZoom = null;
+  afterChange(true);
+  seek(Math.min(T, outDur()));
+}
+function afterChange(rebuild) {
+  S.dirty = true;
+  if (rebuild) renderPanel();
+  applyAudio(); updateUndoBtns(); renderTimeline(); scheduleSave();
+}
+function updateUndoBtns() { $('#undoBtn').disabled = !S.undo.length; $('#redoBtn').disabled = !S.redo.length; }
+function applyAudio() { if (S.sv) S.sv.volume = S.st.audio.mute ? 0 : clamp(S.st.audio.volume, 0, 1); }
+
+/* Bühne */
+function fitStage() {
+  if (!S.st) return;
+  const box = $('#stage'), c = $('#stageCanvas');
+  const a = ASPECTS[S.st.aspect];
+  const bw = Math.max(100, box.clientWidth - 48), bh = Math.max(100, box.clientHeight - 48);
+  let w = bw, hh = w / a;
+  if (hh > bh) { hh = bh; w = hh * a; }
+  c.style.width = Math.round(w) + 'px'; c.style.height = Math.round(hh) + 'px';
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const scale = Math.min(1, 1600 / Math.max(w * dpr, hh * dpr));
+  c.width = Math.round(w * dpr * scale); c.height = Math.round(hh * dpr * scale);
+  S.dirty = true;
+}
+function draw() {
+  const c = $('#stageCanvas'), ctx = c.getContext('2d', { alpha: false });
+  drawFrame(ctx, c.width, c.height, S.st, S.sv, S.cv);
+  drawZoomTarget(c, ctx);
+  const m = S.selMask != null && S.st.masks[S.selMask];
+  if (m && S.sv && S.sv.videoWidth) {
+    const { C, L } = videoGeom(c.width, c.height, S.st, S.sv), R = maskRect(m, C, L), hs = handleSize(c);
+    ctx.save();
+    ctx.setLineDash([6, 4]); ctx.lineWidth = 2; ctx.strokeStyle = BRAND.brand;
+    ctx.strokeRect(R.x, R.y, R.w, R.h);
+    ctx.setLineDash([]); ctx.fillStyle = BRAND.brand;
+    rr(ctx, R.x + R.w - hs / 2, R.y + R.h - hs / 2, hs, hs, 3); ctx.fill();
+    ctx.restore();
+  }
+}
+const handleSize = c => Math.max(12, Math.min(c.width, c.height) * 0.025);
+function drawZoomTarget(c, ctx) {
+  const z = S.selZoom != null && S.st.zooms[S.selZoom];
+  if (!z || !S.sv || !S.sv.videoWidth) return;
+  const { C, L } = videoGeom(c.width, c.height, S.st, S.sv);
+  const px = L.vx + (z.x * C.vw - C.sx) / C.sw * L.vw, py = L.vy + (z.y * C.vh - C.sy) / C.sh * L.vh;
+  if (px < L.vx || px > L.vx + L.vw || py < L.vy || py > L.vy + L.vh) return;
+  const r = Math.max(10, Math.min(c.width, c.height) * 0.025);
+  ctx.save();
+  ctx.lineWidth = 3; ctx.strokeStyle = '#FFFFFF'; ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2); ctx.stroke();
+  ctx.lineWidth = 2; ctx.strokeStyle = BRAND.brand; ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2); ctx.stroke();
+  ctx.fillStyle = BRAND.brand; ctx.beginPath(); ctx.arc(px, py, r * 0.28, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+function syncCam() {
+  const cv = S.cv, sv = S.sv;
+  if (!cv || cv.readyState < 2 || !S.st.cam.on) return;
+  const t = sv.currentTime;
+  const cd = isFinite(cv.duration) ? cv.duration : Infinity;
+  const drift = cv.currentTime - t;
+  if (S.playing) {
+    // Beim Abspielen nicht springen (das ruckelt), sondern die Kamera sanft schneller oder langsamer laufen lassen
+    if (t < cd && Math.abs(drift) > 0.4) cv.currentTime = t;
+    const want = sv.playbackRate * (Math.abs(drift) > 0.04 ? (drift > 0 ? 0.94 : 1.06) : 1);
+    if (Math.abs(cv.playbackRate - want) > 0.001) cv.playbackRate = want;
+  } else {
+    if (cv.playbackRate !== sv.playbackRate) cv.playbackRate = sv.playbackRate;
+    if (t < cd && Math.abs(drift) > 0.04) cv.currentTime = t;
+  }
+  if (S.playing && cv.paused && t < cd) cv.play().catch(() => {});
+}
+function loop() {
+  if (S.view === 'edit' && S.sv) {
+    if (S.playing) {
+      const cl = clips(), c = cl[S.ci];
+      if (c && S.sv.currentTime >= c.e - 0.02) {
+        if (S.ci < cl.length - 1) {
+          const n = cl[++S.ci];
+          S.sv.currentTime = n.s; S.sv.playbackRate = n.sp;
+          if (S.cv) { S.cv.currentTime = n.s; S.cv.playbackRate = n.sp; }
+        } else { pause(); seek(outDur()); }
+      }
+      if (!S.rvfc) S.dirty = true; else updateTime();
+    }
+    if (S.dirty) { syncCam(); draw(); S.dirty = false; updateTime(); }
+  }
+  requestAnimationFrame(loop);
+}
+function updateTime() {
+  const T = outNow(), d = outDur();
+  $('#timeLabel').textContent = fmt(T) + ' / ' + fmt(d);
+  $('#tlHead').style.left = (d ? clamp(T / d, 0, 1) * 100 : 0) + '%';
+}
+function updatePlayBtn() {
+  const b = $('#playBtn');
+  b.replaceChildren(icon(S.playing ? 'pause' : 'play'));
+  b.setAttribute('aria-label', S.playing ? 'Pause' : 'Abspielen');
+}
+// Alle Zeiten im Editor sind "Ausgabezeit": so lang, wie das fertige Video wird.
+function seek(T) {
+  if (!S.sv) return;
+  T = clamp(T, 0, outDur());
+  const { i, t } = outToSrc(T), sp = clips()[i].sp;
+  S.ci = i;
+  S.sv.currentTime = t; S.sv.playbackRate = sp;
+  if (S.cv && S.st.cam.on) { const cd = isFinite(S.cv.duration) ? S.cv.duration : t; S.cv.currentTime = Math.min(t, cd); S.cv.playbackRate = sp; }
+  S.dirty = true;
+}
+async function play() {
+  const T = outNow();
+  seek(T >= outDur() - 0.05 ? 0 : T);
+  try { await S.sv.play(); } catch (e) { /* egal */ }
+  syncCam();
+}
+function pause() { S.sv && S.sv.pause(); S.cv && S.cv.pause(); }
+function togglePlay() { if (!S.sv) return; S.playing ? pause() : play(); }
+
+/* Schnitt: das Video ist eine Liste von Stücken {s, e, sp} (Quelle von s bis e, Tempo sp) */
+const SPEEDS = [0.5, 1, 1.5, 2, 3];
+const spLabel = v => String(v).replace('.', ',') + 'x';
+function splitAt() {
+  if (!S.sv) return;
+  const T = outNow(), { i, t } = outToSrc(T), c = clips()[i];
+  if (t - c.s < 0.15 || c.e - t < 0.15) { toast('Zu nah an einem Schnitt. Geh ein kleines Stück weiter und teil dann.'); return; }
+  clips().splice(i, 1, { s: c.s, e: t, sp: c.sp }, { s: t, e: c.e, sp: c.sp });
+  S.sel = i + 1;
+  commit(); renderPanel(); seek(T);
+}
+function deleteSel() {
+  if (S.sel == null) { toast('Klick erst ein Stück in der Zeitleiste an.'); return; }
+  if (clips().length < 2) { toast('Das ist das einzige Stück. Teil das Video erst mit S, dann kannst du Teile löschen.'); return; }
+  const i = S.sel, T = srcToOut(i, clips()[i].s);
+  clips().splice(i, 1);
+  S.sel = null;
+  commit(); renderPanel(); seek(Math.min(T, outDur()));
+}
+function setSpeed(v) {
+  const ci = S.ci, t = S.sv.currentTime;
+  if (S.sel != null) clips()[S.sel].sp = v; else clips().forEach(c => { c.sp = v; });
+  seek(srcToOut(ci, t));
+}
+function setEdge(which) {
+  const i = S.ci, t = S.sv.currentTime, c = clips()[i];
+  if (which === 'l') { if (c.e - t < 0.2) return; c.s = t; } else { if (t - c.s < 0.2) return; c.e = t; }
+  S.sel = i;
+  commit(); renderPanel(); seek(srcToOut(i, which === 'l' ? c.s : c.e) - (which === 'l' ? 0 : 0.001));
+}
+function resetCuts() { S.st.clips = [{ s: 0, e: dur(), sp: 1 }]; S.sel = null; commit(); renderPanel(); seek(0); }
+
+/* Zeitleiste */
+function renderTimeline() {
+  if (!S.st) return;
+  const cl = clips(), total = outDur() || 1;
+  let acc = 0;
+  $('#tlClips').replaceChildren(...cl.map((c, i) => {
+    const L = clipLen(c), on = S.sel === i;
+    const el = h('div', { class: 'clip' + (on ? ' on' : ''), style: 'left:' + (acc / total * 100) + '%;width:' + (L / total * 100) + '%' },
+      c.sp !== 1 ? h('span', { class: 'badge', text: spLabel(c.sp) }) : null,
+      on ? h('span', { class: 'hd l', 'data-h': 'l', title: 'Anfang verschieben' }) : null,
+      on ? h('span', { class: 'hd r', 'data-h': 'r', title: 'Ende verschieben' }) : null);
+    acc += L;
+    return el;
+  }));
+  $('#tlStart').textContent = '0:00,0';
+  $('#tlEnd').textContent = fmtD(outDur());
+  $('#tlLen').textContent = cl.length > 1 ? cl.length + ' Stücke' : '';
+  $('#delBtn').disabled = S.sel == null || cl.length < 2;
+  renderZoomTrack();
+  drawStrip();
+}
+function bindTimeline() {
+  const tl = $('#tl');
+  tl.onpointerdown = e => {
+    if (!S.sv) return;
+    const rect = tl.getBoundingClientRect(), total = outDur();
+    const hnd = e.target.dataset && e.target.dataset.h;
+    if (S.playing) pause();
+    tl.setPointerCapture(e.pointerId);
+    const end = () => { tl.onpointermove = tl.onpointerup = tl.onpointercancel = null; };
+    if (hnd && S.sel != null) {
+      // Anfang oder Ende des markierten Stücks verschieben
+      const i = S.sel, cl = clips(), c = cl[i], prev = cl[i - 1], next = cl[i + 1];
+      const s0 = c.s, e0 = c.e, x0 = e.clientX, secPerPx = total / rect.width;
+      tl.onpointermove = ev => {
+        const d = (ev.clientX - x0) * secPerPx * c.sp;
+        if (hnd === 'l') { c.s = clamp(s0 + d, prev ? prev.e : 0, c.e - 0.2); seek(srcToOut(i, c.s)); }
+        else { c.e = clamp(e0 + d, c.s + 0.2, next ? next.s : dur()); seek(srcToOut(i, c.e) - 0.001); }
+        renderTimeline();
+      };
+      tl.onpointerup = tl.onpointercancel = () => { end(); commit(); };
+      return;
+    }
+    const tAt = ev => clamp((ev.clientX - rect.left) / rect.width, 0, 1) * total;
+    const T = tAt(e), { i } = outToSrc(T);
+    if (S.sel !== i) { S.sel = i; renderTimeline(); renderPanel(); }
+    seek(T);
+    tl.onpointermove = ev => seek(tAt(ev));
+    tl.onpointerup = tl.onpointercancel = end;
+  };
+}
+// Vorschaubilder der Quelle einmal holen, dann passend zum Schnitt zusammensetzen
+async function buildThumbs() {
+  const token = S.thumbToken = (S.thumbToken || 0) + 1;
+  S.thumbs = [];
+  drawStrip();
+  if (!S.urls.screen) return;
+  const v = document.createElement('video'); v.muted = true;
+  await loadVideo(v, S.urls.screen);
+  if (token !== S.thumbToken || !v.videoWidth) return;
+  const d = dur(), n = Math.max(8, Math.min(60, Math.round(d * 2))), th = 96, tw = Math.round(th * v.videoWidth / v.videoHeight);
+  S.thumbAspect = v.videoWidth / v.videoHeight;
+  for (let i = 0; i < n; i++) {
+    if (token !== S.thumbToken) return;
+    const t = Math.min(d - 0.05, d * i / (n - 1));
+    v.currentTime = t;
+    await once(v, 'seeked', 3000);
+    if (token !== S.thumbToken) return;
+    const c = document.createElement('canvas'); c.width = tw; c.height = th;
+    c.getContext('2d').drawImage(v, 0, 0, tw, th);
+    S.thumbs.push({ t, c });
+    if (i % 6 === 5 || i === n - 1) drawStrip();
+  }
+  v.removeAttribute('src'); v.load();
+}
+function drawStrip() {
+  const c = $('#tlThumbs'), dpr = Math.min(2, window.devicePixelRatio || 1);
+  const W = Math.round(c.clientWidth * dpr), H = Math.round(c.clientHeight * dpr);
+  if (!W || !H) return;
+  if (c.width !== W || c.height !== H) { c.width = W; c.height = H; }
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#E4E2EA'; ctx.fillRect(0, 0, W, H);
+  const th = S.thumbs || [];
+  if (!th.length || !S.st) return;
+  const total = outDur(), d = dur(), tw = H * (S.thumbAspect || 16 / 9);
+  for (let x = 0; x < W; x += tw) {
+    const { t } = outToSrc(clamp((x + tw / 2) / W, 0, 1) * total);
+    let best = th[0];
+    for (const f of th) if (Math.abs(f.t - t) < Math.abs(best.t - t)) best = f;
+    if (Math.abs(best.t - t) > d / th.length * 1.5 + 0.5 && th.length < 8) continue;
+    ctx.drawImage(best.c, x, 0, tw, H);
+  }
+}
+
+/* Im Bild: Kamera verschieben, Abdeckungen verschieben und in der Größe ändern */
+function bindStageDrag() {
+  const c = $('#stageCanvas');
+  const toCanvas = e => { const r = c.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * c.width, (e.clientY - r.top) / r.height * c.height]; };
+  const inside = (x, y, R) => x >= R.x && x <= R.x + R.w && y >= R.y && y <= R.y + R.h;
+  const hitCam = (x, y) => S.cv && S.st.cam.on ? (B => inside(x, y, B) ? B : null)(camBox(c.width, c.height, S.st)) : null;
+  const geom = () => S.sv && S.sv.videoWidth ? videoGeom(c.width, c.height, S.st, S.sv) : null;
+  const hitHandle = (x, y) => {
+    const G = geom(), m = S.selMask != null && S.st.masks[S.selMask];
+    if (!G || !m) return false;
+    const R = maskRect(m, G.C, G.L), hs = handleSize(c) * 1.4;
+    return Math.abs(x - (R.x + R.w)) < hs && Math.abs(y - (R.y + R.h)) < hs;
+  };
+  const hitMask = (x, y) => {
+    const G = geom(); if (!G) return -1;
+    const ms = S.st.masks || [];
+    for (let i = ms.length - 1; i >= 0; i--) if (inside(x, y, maskRect(ms[i], G.C, G.L))) return i;
+    return -1;
+  };
+  const drag = (e, onMove) => {
+    c.setPointerCapture(e.pointerId);
+    const move = ev => { onMove(ev); S.dirty = true; };
+    const up = () => {
+      c.removeEventListener('pointermove', move); c.removeEventListener('pointerup', up); c.removeEventListener('pointercancel', up);
+      commit(); renderPanel();
+    };
+    c.addEventListener('pointermove', move); c.addEventListener('pointerup', up); c.addEventListener('pointercancel', up);
+  };
+  c.onpointermove = e => {
+    if (c.hasPointerCapture(e.pointerId)) return;
+    const [x, y] = toCanvas(e);
+    c.style.cursor = hitHandle(x, y) ? 'nwse-resize' : hitCam(x, y) ? 'grab' : hitMask(x, y) >= 0 ? 'move' : 'default';
+  };
+  c.onpointerdown = e => {
+    const [x, y] = toCanvas(e);
+    // Größe der markierten Abdeckung ändern
+    if (hitHandle(x, y)) {
+      const G = geom(), m = S.st.masks[S.selMask], w0 = m.w, h0 = m.h;
+      const kx = G.C.sw / G.L.vw / G.C.vw, ky = G.C.sh / G.L.vh / G.C.vh;
+      drag(e, ev => { const [mx, my] = toCanvas(ev); m.w = clamp(w0 + (mx - x) * kx, 0.01, 1 - m.x); m.h = clamp(h0 + (my - y) * ky, 0.008, 1 - m.y); });
+      return;
+    }
+    const B = hitCam(x, y);
+    if (B) {
+      c.style.cursor = 'grabbing';
+      const ox = x - (B.x + B.w / 2), oy = y - (B.y + B.h / 2);
+      drag(e, ev => { const [mx, my] = toCanvas(ev); S.st.cam.x = clamp((mx - ox) / c.width, 0, 1); S.st.cam.y = clamp((my - oy) / c.height, 0, 1); });
+      return;
+    }
+    const i = hitMask(x, y);
+    if (i >= 0) {
+      if (S.selMask !== i) { S.selMask = i; renderPanel(); }
+      const G = geom(), m = S.st.masks[i], x0 = m.x, y0 = m.y;
+      const kx = G.C.sw / G.L.vw / G.C.vw, ky = G.C.sh / G.L.vh / G.C.vh;
+      drag(e, ev => { const [mx, my] = toCanvas(ev); m.x = clamp(x0 + (mx - x) * kx, 0, 1 - m.w); m.y = clamp(y0 + (my - y) * ky, 0, 1 - m.h); });
+      return;
+    }
+    if (S.selMask != null) { S.selMask = null; S.dirty = true; renderPanel(); return; }
+    const zsel = S.selZoom != null && S.st.zooms[S.selZoom], G = geom();
+    if (zsel && G && inside(x, y, { x: G.L.vx, y: G.L.vy, w: G.L.vw, h: G.L.vh })) {
+      zsel.x = clamp((G.C.sx + (x - G.L.vx) / G.L.vw * G.C.sw) / G.C.vw, 0, 1);
+      zsel.y = clamp((G.C.sy + (y - G.L.vy) / G.L.vh * G.C.sh) / G.C.vh, 0, 1);
+      commit(); S.dirty = true;
+      return;
+    }
+    togglePlay();
+  };
+}
+
+/* =========================================================================
+   Auto-Zoom: Activity Map. Das Tool spielt das Video unsichtbar im Schnelldurchlauf ab,
+   vergleicht kleine Graustufen-Bilder und merkt sich, wo sich etwas verändert.
+   Wo sich die Bewegung auf eine kleine Stelle konzentriert (Tippen, Klicken), wird gezoomt.
+   ========================================================================= */
+async function analyzeActivity(url, onProgress) {
+  const token = S.anaToken;
+  const v = document.createElement('video'); v.muted = true;
+  await loadVideo(v, url);
+  if (!v.videoWidth || token !== S.anaToken) return null;
+  const gw = 16, gh = 9, aw = 128, ah = 72;
+  const c = document.createElement('canvas'); c.width = aw; c.height = ah;
+  const x = c.getContext('2d', { willReadFrequently: true });
+  const d = isFinite(v.duration) && v.duration > 0 ? v.duration : dur();
+  const times = [], grids = [], frac = [];
+  let prev = null, lastT = -1;
+  v.currentTime = 0; await once(v, 'seeked', 2000);
+  v.playbackRate = d > 600 ? 16 : 8;
+  await new Promise(res => {
+    let finished = false;
+    const done = () => { if (!finished) { finished = true; res(); } };
+    v.onended = done;
+    const next = () => { if (finished) return; if (v.requestVideoFrameCallback) v.requestVideoFrameCallback(grab); else requestAnimationFrame(grab); };
+    const grab = () => {
+      if (finished) return;
+      if (token !== S.anaToken) { done(); return; }
+      const t = v.currentTime;
+      if (t - lastT >= 0.12) {
+        lastT = t;
+        x.drawImage(v, 0, 0, aw, ah);
+        const px = x.getImageData(0, 0, aw, ah).data, g = new Uint8Array(aw * ah);
+        for (let i = 0, j = 0; i < px.length; i += 4, j++) g[j] = (px[i] * 77 + px[i + 1] * 150 + px[i + 2] * 29) >> 8;
+        if (prev) {
+          const grid = new Float32Array(gw * gh); let changed = 0;
+          for (let yy = 0; yy < ah; yy++) for (let xx = 0; xx < aw; xx++) {
+            const k = yy * aw + xx;
+            if (Math.abs(g[k] - prev[k]) > 18) { changed++; grid[((yy * gh / ah) | 0) * gw + ((xx * gw / aw) | 0)]++; }
+          }
+          times.push(t); grids.push(grid); frac.push(changed / (aw * ah));
+        }
+        prev = g;
+        if (onProgress) onProgress(Math.min(1, t / d));
+      }
+      if (t >= d - 0.05) { done(); return; }
+      next();
+    };
+    v.play().then(next).catch(done);
+    setTimeout(done, (d / v.playbackRate + 30) * 1000);
+  });
+  v.pause(); v.removeAttribute('src'); v.load();
+  if (token !== S.anaToken) return null;
+  return { times, grids, frac, gw, gh };
+}
+function computeAutoZooms(A, level, total) {
+  const { times, grids, frac, gw, gh } = A, n = times.length;
+  if (n < 8) return [];
+  const WIN = 1.2, pts = [];
+  for (let i = 0; i < n; i++) {
+    const g = new Float32Array(gw * gh); let big = false;
+    for (let k = i; k >= 0 && times[i] - times[k] <= WIN; k--) {
+      if (frac[k] > 0.06) { big = true; break; }  // Scrollen oder Seitenwechsel: da nicht zoomen
+      const gk = grids[k]; for (let q = 0; q < g.length; q++) g[q] += gk[q];
+    }
+    if (big) continue;
+    let m = 0, mx = 0, my = 0;
+    for (let q = 0; q < g.length; q++) { const val = g[q]; if (val > 2) { const gx = q % gw, gy = (q / gw) | 0; m += val; mx += val * (gx + 0.5) / gw; my += val * (gy + 0.5) / gh; } }
+    if (m < 30) continue;
+    mx /= m; my /= m;
+    let vx = 0, vy = 0;
+    for (let q = 0; q < g.length; q++) { const val = g[q]; if (val > 2) { const dx = (q % gw + 0.5) / gw - mx, dy = (((q / gw) | 0) + 0.5) / gh - my; vx += val * dx * dx; vy += val * dy * dy; } }
+    if (Math.sqrt(vx / m) < 0.14 && Math.sqrt(vy / m) < 0.16) pts.push({ t: times[i] - WIN / 2, x: mx, y: my });
+  }
+  const blocks = []; let cur = null;
+  for (const p of pts) {
+    if (cur && p.t - cur.last <= 1.0 && Math.hypot(p.x - cur.x, p.y - cur.y) < 0.18) { cur.n++; cur.x += (p.x - cur.x) / cur.n; cur.y += (p.y - cur.y) / cur.n; cur.last = p.t; }
+    else { if (cur) blocks.push(cur); cur = { first: p.t, last: p.t, x: p.x, y: p.y, n: 1 }; }
+  }
+  if (cur) blocks.push(cur);
+  const out = [];
+  for (const b of blocks) {
+    if (b.last - b.first < 0.6) continue;
+    let t0 = Math.max(0, b.first - 0.6), t1 = Math.min(total, b.last + 1.2);
+    if (t1 - t0 < 2.2) t1 = Math.min(total, t0 + 2.2);
+    const pr = out[out.length - 1];
+    if (pr && t0 < pr.t1 + 0.8) {
+      if (Math.hypot(pr.x - b.x, pr.y - b.y) < 0.2) { pr.t1 = Math.max(pr.t1, t1); continue; }
+      t0 = pr.t1 + 0.8;
+      if (t1 - t0 < 1.5) continue;
+    }
+    out.push({ t0, t1, x: clamp(b.x, 0.05, 0.95), y: clamp(b.y, 0.05, 0.95), level, auto: true });
+  }
+  return out;
+}
+async function runAutoZoom(silent) {
+  if (!S.project || S.analyzing) return;
+  const project = S.project;
+  if (!S.analysis) {
+    S.analyzing = true; S.anaToken = (S.anaToken || 0) + 1;
+    const chip = $('#anaChip'); chip.hidden = false; chip.textContent = 'Auto-Zoom wird vorbereitet';
+    renderPanel();
+    try {
+      S.analysis = await analyzeActivity(S.urls.screen, p => { chip.textContent = 'Auto-Zoom wird vorbereitet, ' + Math.round(p * 100) + ' %'; });
+    } catch (e) { S.analysis = null; }
+    S.analyzing = false; chip.hidden = true;
+    if (S.project !== project) return;
+    if (!S.analysis) { renderPanel(); if (!silent) toast('Auto-Zoom konnte dieses Video nicht lesen. Setz Zooms einfach selbst mit Z.'); return; }
+  }
+  const auto = computeAutoZooms(S.analysis, S.st.zoomLevel || 1.8, dur());
+  const manual = (S.st.zooms || []).filter(z => !z.auto);
+  const kept = auto.filter(a => !manual.some(m => a.t0 < m.t1 && a.t1 > m.t0));
+  S.st.zooms = manual.concat(kept).sort((a, b) => a.t0 - b.t0);
+  S.selZoom = null;
+  project.autoZoomDone = true;
+  commit(); renderPanel();
+  if (kept.length) toast((kept.length === 1 ? '1 Zoom' : kept.length + ' Zooms') + ' automatisch gesetzt. Klick einen Zoom in der Zoom-Spur an, um ihn anzupassen.', 6000);
+  else if (!silent) toast('Keine passenden Stellen gefunden. Setz Zooms einfach selbst mit Z.');
+}
+function addZoom() {
+  if (!S.sv) return;
+  const t = S.sv.currentTime;
+  const z = { t0: t, t1: Math.min(dur(), t + 3), x: 0.5, y: 0.5, level: S.st.zoomLevel || 1.8 };
+  if (z.t1 - z.t0 < 0.8) { toast('Hier ist zu wenig Platz für einen Zoom.'); return; }
+  S.st.zooms.push(z); S.st.zooms.sort((a, b) => a.t0 - b.t0);
+  S.selZoom = S.st.zooms.indexOf(z);
+  commit(); renderPanel();
+  seek(Math.min(outDur(), srcToOutAny(t) + 0.9));
+  toast('Zoom gesetzt. Klick jetzt ins Bild, wohin gezoomt werden soll.');
+}
+function deleteZoom() {
+  if (S.selZoom == null) return;
+  S.st.zooms.splice(S.selZoom, 1); S.selZoom = null;
+  commit(); renderPanel();
+}
+// Quellzeit auf die Zeitleiste umrechnen, auch wenn die Stelle rausgeschnitten ist
+function srcToOutAny(t) {
+  const cl = clips();
+  for (let i = 0; i < cl.length; i++) {
+    if (t < cl[i].s) return srcToOut(i, cl[i].s);
+    if (t <= cl[i].e) return srcToOut(i, t);
+  }
+  return outDur();
+}
+function renderZoomTrack() {
+  const box = $('#zTrack'), total = outDur() || 1, zs = S.st.zooms || [];
+  box.replaceChildren(...zs.map((z, i) => {
+    const a = srcToOutAny(z.t0), b = srcToOutAny(z.t1);
+    if (b - a < 0.05) return null;
+    const on = S.selZoom === i;
+    return h('div', { class: 'zb' + (on ? ' on' : ''), 'data-i': i, style: 'left:' + (a / total * 100) + '%;width:' + ((b - a) / total * 100) + '%' },
+      h('span', { class: 'zl', text: String(z.level.toFixed(1)).replace('.', ',') + 'x' }),
+      on ? h('span', { class: 'zh l', 'data-h': 'l' }) : null, on ? h('span', { class: 'zh r', 'data-h': 'r' }) : null);
+  }));
+}
+function bindZoomTrack() {
+  const box = $('#zTrack');
+  box.onpointerdown = e => {
+    if (!S.sv) return;
+    const rect = box.getBoundingClientRect(), total = outDur();
+    const srcAt = ev => outToSrc(clamp((ev.clientX - rect.left) / rect.width, 0, 1) * total).t;
+    const el = e.target.closest('.zb');
+    if (!el) { if (S.selZoom != null) { S.selZoom = null; renderPanel(); S.dirty = true; } return; }
+    const i = +el.dataset.i, z = S.st.zooms[i], hnd = e.target.dataset.h;
+    if (S.selZoom !== i) { S.selZoom = i; S.selMask = null; renderPanel(); }
+    if (S.playing) pause();
+    box.setPointerCapture(e.pointerId);
+    const s0 = srcAt(e), a0 = z.t0, b0 = z.t1;
+    let moved = false;
+    box.onpointermove = ev => {
+      moved = true;
+      const tt = srcAt(ev);
+      if (hnd === 'l') z.t0 = clamp(tt, 0, z.t1 - 0.6);
+      else if (hnd === 'r') z.t1 = clamp(tt, z.t0 + 0.6, dur());
+      else { const d = clamp(tt - s0, -a0, dur() - b0); z.t0 = a0 + d; z.t1 = b0 + d; }
+      renderZoomTrack(); S.dirty = true;
+    };
+    box.onpointerup = box.onpointercancel = () => {
+      box.onpointermove = box.onpointerup = box.onpointercancel = null;
+      if (moved) { S.st.zooms.sort((p, q) => p.t0 - q.t0); S.selZoom = S.st.zooms.indexOf(z); commit(); renderPanel(); }
+      seek(Math.min(outDur(), srcToOutAny(z.t0) + Math.min(1, (z.t1 - z.t0) / 2)));
+    };
+  };
+}
+
+/* Abdeckungen */
+const URL_PRESET = { x: 0.1, y: 0.048, w: 0.6, h: 0.036 };
+const MASK_COLORS = [['#EDEDF0', 'Hellgrau'], ['#FFFFFF', 'Weiß'], ['#141218', 'Fast Schwarz'], [BRAND.brand, 'Akzent']];
+function addMask(kind, preset) {
+  const ms = S.st.masks || (S.st.masks = []);
+  const m = Object.assign({ x: 0.35, y: 0.42, w: 0.3, h: 0.08 }, preset || {}, { kind, color: kind === 'bar' ? '#EDEDF0' : null });
+  ms.push(m); S.selMask = ms.length - 1;
+  commit(); renderPanel();
+}
+function deleteMask() {
+  if (S.selMask == null) return;
+  S.st.masks.splice(S.selMask, 1); S.selMask = null;
+  commit(); renderPanel();
+}
+
+/* Seitenleiste */
+function sect(title, ...kids) { return h('section', { class: 'sect' }, h('h4', { text: title }), ...kids); }
+function seg(opts, cur, pick, full) {
+  return h('div', { class: 'seg' + (full ? ' full' : '') }, ...opts.map(([v, l]) => h('button', { type: 'button', class: v === cur ? 'on' : null, onclick: () => { pick(v); commit(); renderPanel(); } }, l)));
+}
+function slider(label, min, max, step, get, set, show) {
+  const val = h('span', { class: 'val', text: show(get()) });
+  const inp = h('input', { type: 'range', min, max, step, value: get(), 'aria-label': label });
+  inp.oninput = () => { set(+inp.value); val.textContent = show(+inp.value); S.dirty = true; applyAudio(); };
+  inp.onchange = () => commit();
+  return h('div', { class: 'slider' }, h('label', { text: label }), inp, val);
+}
+function toggleRow(label, get, set) {
+  const sw = h('button', { class: 'switch', role: 'switch', type: 'button', 'aria-checked': get() ? 'true' : 'false', 'aria-label': label, onclick: () => { set(!get()); commit(); renderPanel(); } });
+  return h('div', { class: 'row' }, h('span', { class: 'row-label', text: label }), sw);
+}
+function renderPanel() {
+  const st = S.st, P = $('#panel');
+  const keep = P.scrollTop;
+  const kids = [];
+
+  kids.push(sect('Format', seg([['16:9', '16:9'], ['9:16', '9:16'], ['1:1', '1:1'], ['4:5', '4:5']], st.aspect, v => { st.aspect = v; fitStage(); }, true),
+    h('div', { class: 'hint', text: st.aspect === '9:16' ? 'Hochkant für Reels, TikTok und Shorts.' : st.aspect === '16:9' ? 'Quer für YouTube, Skool und Kurse.' : st.aspect === '1:1' ? 'Quadratisch für den Feed.' : '4:5 für Instagram und Facebook.' })));
+
+  const sw = SWATCHES.map(([c, n]) => h('button', { type: 'button', class: 'sw' + (st.bg.kind === 'color' && st.bg.color.toLowerCase() === c.toLowerCase() ? ' on' : ''), title: n, 'aria-label': n, style: 'background:' + c, onclick: () => { st.bg.kind = 'color'; st.bg.color = c; commit(); renderPanel(); } }));
+  const isCustom = st.bg.kind === 'color' && !SWATCHES.some(([c]) => c.toLowerCase() === st.bg.color.toLowerCase());
+  const colorInp = h('input', { type: 'color', value: st.bg.color, 'aria-label': 'Eigene Farbe' });
+  colorInp.oninput = () => { st.bg.kind = 'color'; st.bg.color = colorInp.value; S.dirty = true; };
+  colorInp.onchange = () => { commit(); renderPanel(); };
+  sw.push(h('label', { class: 'sw' + (isCustom ? ' on' : ''), title: 'Eigene Farbe', style: isCustom ? 'background:' + st.bg.color : '' }, isCustom ? null : icon('plus'), colorInp));
+  sw.push(h('button', { type: 'button', class: 'sw' + (st.bg.kind === 'blur' ? ' on' : ''), title: 'Unschärfe aus dem Video', 'aria-label': 'Unschärfe aus dem Video', onclick: () => { st.bg.kind = 'blur'; commit(); renderPanel(); } }, icon('drop')));
+  const bgKids = [h('div', { class: 'swatches' }, ...sw)];
+  kids.push(sect('Hintergrund', ...bgKids));
+
+  const frameKids = [
+    slider('Abstand', 0, 0.2, 0.005, () => st.frame.pad, v => { st.frame.pad = v; }, v => pct(v / 0.2)),
+    slider('Ecken', 0, 0.06, 0.001, () => st.frame.radius, v => { st.frame.radius = v; }, v => pct(v / 0.06)),
+    slider('Schatten', 0, 1, 0.01, () => st.frame.shadow, v => { st.frame.shadow = v; }, pct),
+    h('div', { class: 'row' }, h('span', { class: 'row-label', text: 'Stil' }), seg([['none', 'Ohne'], ['mac', 'Fenster']], st.frame.chrome, v => { st.frame.chrome = v; })),
+  ];
+  kids.push(sect('Rahmen', ...frameKids));
+
+  const zs = st.zooms || (st.zooms = []), selZ = S.selZoom != null ? zs[S.selZoom] : null;
+  const zoomKids = [
+    h('div', { class: 'btn-row' },
+      h('button', { class: 'btn btn-sm', type: 'button', disabled: S.analyzing, onclick: () => runAutoZoom(false) }, icon('plus'), S.analyzing ? 'Wird vorbereitet …' : 'Auto-Zoom'),
+      h('button', { class: 'btn btn-sm', type: 'button', onclick: addZoom }, 'Zoom hier ', h('kbd', { text: 'Z' })),
+      zs.length ? h('button', { class: 'btn btn-sm btn-ghost', type: 'button', text: 'Alle entfernen', onclick: () => { st.zooms = []; S.selZoom = null; commit(); renderPanel(); } }) : null),
+    slider(selZ ? 'Stärke' : 'Stärke (alle)', 1.2, 3, 0.05, () => selZ ? selZ.level : (st.zoomLevel || 1.8), v => { if (selZ) selZ.level = v; else { st.zoomLevel = v; zs.forEach(z => { z.level = v; }); } renderZoomTrack(); }, v => v.toFixed(1).replace('.', ',') + 'x'),
+  ];
+  if (selZ) zoomKids.push(h('div', { class: 'btn-row' }, h('button', { class: 'btn btn-sm', type: 'button', onclick: deleteZoom }, icon('trash'), 'Zoom löschen')));
+  zoomKids.push(h('div', { class: 'hint', text: selZ
+    ? 'Klick ins Bild, wohin dieser Zoom gehen soll. Länge und Lage änderst du in der Zoom-Spur über der Zeitleiste: Griffe ziehen oder den ganzen Zoom verschieben.'
+    : 'Auto-Zoom findet die Stellen, an denen du tippst oder klickst, und zoomt sanft rein. Mit „Zoom hier“ setzt du selbst einen an die Abspielposition. Zooms klickst du in der Zoom-Spur an.' }));
+  kids.push(sect('Zoom', ...zoomKids));
+
+  const ms = st.masks || (st.masks = []), selM = S.selMask != null ? ms[S.selMask] : null;
+  const maskKids = [
+    h('div', { class: 'btn-row' },
+      h('button', { class: 'btn btn-sm', type: 'button', onclick: () => addMask('bar', URL_PRESET) }, 'Adressleiste'),
+      h('button', { class: 'btn btn-sm', type: 'button', onclick: () => addMask('bar') }, icon('plus'), 'Balken'),
+      h('button', { class: 'btn btn-sm', type: 'button', onclick: () => addMask('blur') }, icon('plus'), 'Unschärfe')),
+  ];
+  if (selM) {
+    maskKids.push(seg([['bar', 'Balken'], ['blur', 'Unschärfe']], selM.kind, v => { selM.kind = v; }, true));
+    if (selM.kind === 'bar') {
+      const mc = h('input', { type: 'color', value: selM.color || '#EDEDF0', 'aria-label': 'Eigene Balkenfarbe' });
+      mc.oninput = () => { selM.color = mc.value; S.dirty = true; };
+      mc.onchange = () => { commit(); renderPanel(); };
+      const known = MASK_COLORS.some(([c]) => c === selM.color);
+      maskKids.push(h('div', { class: 'swatches' },
+        ...MASK_COLORS.map(([col, n]) => h('button', { type: 'button', class: 'sw' + (selM.color === col ? ' on' : ''), title: n, 'aria-label': 'Balken ' + n, style: 'background:' + col, onclick: () => { selM.color = col; commit(); renderPanel(); } })),
+        h('label', { class: 'sw' + (known ? '' : ' on'), title: 'Eigene Farbe', style: known ? '' : 'background:' + selM.color }, known ? icon('plus') : null, mc)));
+    }
+    maskKids.push(h('div', { class: 'btn-row' }, h('button', { class: 'btn btn-sm', type: 'button', onclick: deleteMask }, icon('trash'), 'Abdeckung löschen')));
+  }
+  maskKids.push(h('div', { class: 'hint', text: ms.length
+    ? 'Klick eine Abdeckung im Bild an und zieh sie genau über die Stelle. Am farbigen Punkt unten rechts änderst du die Größe. Sie gilt für das ganze Video.'
+    : 'Verdeck deine Adressleiste, E-Mail-Adressen oder Zahlen, die niemand sehen soll. Der Knopf „Adressleiste“ legt den Balken an die übliche Stelle, den Rest schiebst du mit der Maus.' }));
+  kids.push(sect('Abdecken', ...maskKids));
+
+  const cr = st.crop || (st.crop = { t: 0, b: 0, l: 0, r: 0 });
+  const cropShow = v => Math.round(v * 100) + ' %';
+  kids.push(sect('Zuschneiden',
+    slider('Oben', 0, 0.3, 0.002, () => cr.t, v => { cr.t = v; }, cropShow),
+    slider('Unten', 0, 0.3, 0.002, () => cr.b, v => { cr.b = v; }, cropShow),
+    slider('Links', 0, 0.3, 0.002, () => cr.l, v => { cr.l = v; }, cropShow),
+    slider('Rechts', 0, 0.3, 0.002, () => cr.r, v => { cr.r = v; }, cropShow),
+    h('div', { class: 'hint', text: 'Schneid zum Beispiel oben die Browser-Leiste ganz weg und stell beim Rahmen den Stil „Browser“ ein. Dann steht oben deine Wunsch-Adresse.' })));
+
+  if (S.cv) {
+    const c = st.cam;
+    const camKids = [toggleRow('Kamera zeigen', () => c.on, v => { c.on = v; if (v) seek(outNow()); })];
+    if (c.on) {
+      camKids.push(
+        seg([['circle', 'Kreis'], ['rounded', 'Rund'], ['tall', 'Hoch'], ['wide', 'Breit']], c.shape, v => { c.shape = v; }, true),
+        slider('Größe', 0.1, 0.5, 0.005, () => c.size, v => { c.size = v; }, v => pct(v / 0.5)),
+        slider('Zoom', 1, 2.2, 0.01, () => c.zoom, v => { c.zoom = v; }, v => v.toFixed(1).replace('.', ',') + 'x'),
+        slider('Schatten', 0, 1, 0.01, () => c.shadow, v => { c.shadow = v; }, pct),
+      );
+      const bc = h('input', { type: 'color', value: c.borderColor, 'aria-label': 'Eigene Rahmenfarbe' });
+      bc.oninput = () => { c.border = 'custom'; c.borderColor = bc.value; S.dirty = true; };
+      bc.onchange = () => { commit(); renderPanel(); };
+      const bsw = [['none', 'Ohne', 'transparent'], ['white', 'Weiß', '#FFFFFF'], ['black', 'Schwarz', '#141218'], ['akzent', 'Akzent', BRAND.brand]].map(([v, n, col]) =>
+        h('button', { type: 'button', class: 'sw' + (c.border === v ? ' on' : ''), title: n, 'aria-label': 'Rand ' + n, style: 'background:' + col, onclick: () => { c.border = v; commit(); renderPanel(); } }, v === 'none' ? '∅' : null));
+      bsw.push(h('label', { class: 'sw' + (c.border === 'custom' ? ' on' : ''), title: 'Eigene Farbe', style: c.border === 'custom' ? 'background:' + c.borderColor : '' }, c.border === 'custom' ? null : icon('plus'), bc));
+      camKids.push(h('div', { class: 'row' }, h('span', { class: 'row-label', text: 'Rand' })), h('div', { class: 'swatches' }, ...bsw));
+      camKids.push(toggleRow('Spiegeln', () => c.mirror, v => { c.mirror = v; }));
+      const corners = h('div', { class: 'corners' }, ...['tl', 'tr', 'bl', 'br'].map(p => h('button', { type: 'button', 'data-c': p, 'aria-label': { tl: 'Oben links', tr: 'Oben rechts', bl: 'Unten links', br: 'Unten rechts' }[p], class: c.x == null && c.pos === p ? 'on' : null, onclick: () => { c.pos = p; c.x = null; c.y = null; commit(); renderPanel(); } })));
+      camKids.push(h('div', { class: 'row' }, h('span', { class: 'row-label', text: 'Position' }), corners));
+      camKids.push(h('div', { class: 'hint', text: 'Oder zieh die Kamera direkt im Bild dorthin, wo du sie haben willst.' }));
+    }
+    kids.push(sect('Kamera', ...camKids));
+  }
+
+  kids.push(sect('Ton',
+    slider('Lautstärke', 0, 1, 0.01, () => st.audio.volume, v => { st.audio.volume = v; }, pct),
+    toggleRow('Stumm', () => st.audio.mute, v => { st.audio.mute = v; })));
+
+  const sel = S.sel != null ? clips()[S.sel] : null;
+  const allSp = clips().every(c => c.sp === clips()[0].sp) ? clips()[0].sp : null;
+  kids.push(sect('Schnitt',
+    h('div', { class: 'btn-row' },
+      h('button', { class: 'btn btn-sm', type: 'button', onclick: splitAt }, 'Teilen ', h('kbd', { text: 'S' })),
+      h('button', { class: 'btn btn-sm', type: 'button', disabled: !sel || clips().length < 2, onclick: deleteSel }, 'Stück löschen ', h('kbd', { text: '⌫' }))),
+    h('span', { class: 'row-label', text: sel ? 'Tempo für Stück ' + (S.sel + 1) : 'Tempo für das ganze Video' }),
+    seg(SPEEDS.map(v => [v, spLabel(v)]), sel ? sel.sp : allSp, setSpeed, true),
+    h('div', { class: 'hint', text: 'Stell die Abspielposition dorthin, wo du schneiden willst, und drück „Teilen“. Dann klickst du das Stück in der Zeitleiste an und löschst es oder machst es schneller. Mit den farbigen Griffen am markierten Stück verschiebst du Anfang und Ende.' }),
+    h('div', { class: 'btn-row' }, h('button', { class: 'btn btn-sm btn-ghost', type: 'button', text: 'Schnitt zurücksetzen', onclick: resetCuts }))));
+
+  kids.push(sect('Tastenkürzel', h('div', { class: 'shortcuts' },
+    h('kbd', { text: 'Leertaste' }), h('span', { text: 'Abspielen oder Pause' }),
+    h('kbd', { text: '← →' }), h('span', { text: '1 Sekunde zurück oder vor (mit ⇧ 5)' }),
+    h('kbd', { text: 'S' }), h('span', { text: 'An der Abspielposition teilen' }),
+    h('kbd', { text: '⌫' }), h('span', { text: 'Markiertes Stück oder markierte Abdeckung löschen' }),
+    h('kbd', { text: 'Z' }), h('span', { text: 'Zoom an der Abspielposition' }),
+    h('kbd', { text: '[  ]' }), h('span', { text: 'Anfang oder Ende des Stücks hierher' }),
+    h('kbd', { text: '⌘Z' }), h('span', { text: 'Rückgängig (⇧⌘Z wiederholen)' }),
+    h('kbd', { text: '⌘E' }), h('span', { text: 'Exportieren' }))));
+
+  P.replaceChildren(...kids);
+  P.scrollTop = keep;
+  renderZoomTrack();
+}
+
+function bindEditor() {
+  $('#backBtn').onclick = async () => { pause(); clearTimeout(saveT); await saveProject(); closeProject(); showView('home'); };
+  $('#nameInput').oninput = e => { if (S.project) { S.project.name = e.target.value || 'Aufnahme'; scheduleSave(); } };
+  $('#undoBtn').onclick = undo; $('#redoBtn').onclick = redo;
+  $('#playBtn').onclick = togglePlay;
+  $('#splitBtn').onclick = splitAt;
+  $('#delBtn').onclick = deleteSel;
+  $('#exportBtn').onclick = openExport;
+  bindTimeline(); bindStageDrag(); bindZoomTrack();
+  new ResizeObserver(() => { if (S.view === 'edit') fitStage(); }).observe($('#stage'));
+  let rt = 0;
+  new ResizeObserver(() => { clearTimeout(rt); if (S.view === 'edit') rt = setTimeout(drawStrip, 100); }).observe($('#tl'));
+}
+
+/* =========================================================================
+   Export: Bild für Bild auf eine Leinwand malen und mitschneiden
+   ========================================================================= */
+const EXPORT_MIMES = ['video/mp4;codecs=avc1.640033,mp4a.40.2', 'video/mp4;codecs=avc1.4d0034,mp4a.40.2', 'video/mp4;codecs=avc1,opus', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'];
+const EX = Object.assign({ short: 1080, fps: 30 }, LS.get('export', {}), { blob: null, name: '', cancel: false, busy: false });
+function renderExportOpts() {
+  const q = [[720, '720p'], [1080, '1080p'], [1440, '1440p'], [2160, '4K']], f = [[30, '30'], [60, '60']];
+  $('#exQ').replaceChildren(...q.map(([v, l]) => h('button', { type: 'button', class: EX.short === v ? 'on' : null, text: l, onclick: () => { EX.short = v; LS.set('export', { short: EX.short, fps: EX.fps }); renderExportOpts(); } })));
+  $('#exF').replaceChildren(...f.map(([v, l]) => h('button', { type: 'button', class: EX.fps === v ? 'on' : null, text: l, onclick: () => { EX.fps = v; LS.set('export', { short: EX.short, fps: EX.fps }); renderExportOpts(); } })));
+  const [W, H] = outSize(S.st.aspect, EX.short);
+  const mime = pickMime(EXPORT_MIMES);
+  const len = outDur();
+  $('#exInfo').textContent = W + ' × ' + H + ' Pixel, ' + (mime.includes('mp4') ? 'MP4' : 'WebM') + ', Länge ' + fmt(len) + ' Min. Das Rendern dauert ungefähr so lange wie das Video.';
+}
+function exStep(which) { ['exSetup', 'exRun', 'exDone'].forEach(id => { $('#' + id).hidden = id !== which; }); }
+function openExport() {
+  if (!S.sv || EX.busy) return;
+  pause();
+  if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream) { toast('Exportieren geht in diesem Browser nicht. Nimm Chrome, Edge oder Brave.'); return; }
+  renderExportOpts(); exStep('exSetup'); $('#exModal').hidden = false;
+}
+function closeExport() { if (EX.busy) return; $('#exModal').hidden = true; }
+async function runExport() {
+  const ac = new AudioContext();
+  EX.busy = true; EX.cancel = false; exStep('exRun');
+  const st = JSON.parse(JSON.stringify(S.st));
+  const [W, H] = outSize(st.aspect, EX.short), fps = EX.fps;
+  const canvas = document.createElement('canvas'); canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const ev = document.createElement('video'); await loadVideo(ev, S.urls.screen);
+  let ec = null;
+  if (S.urls.cam && st.cam.on) { ec = document.createElement('video'); ec.muted = true; await loadVideo(ec, S.urls.cam); }
+  const dest = ac.createMediaStreamDestination();
+  const gain = ac.createGain(); gain.gain.value = st.audio.mute ? 0 : st.audio.volume;
+  ac.createMediaElementSource(ev).connect(gain).connect(dest);
+  const stream = canvas.captureStream(fps);
+  dest.stream.getAudioTracks().forEach(t => stream.addTrack(t));
+  const mime = pickMime(EXPORT_MIMES);
+  const rec = new MediaRecorder(stream, { mimeType: mime || undefined, videoBitsPerSecond: Math.min(60e6, Math.round(W * H * fps * 0.12)), audioBitsPerSecond: 192000 });
+  const chunks = []; rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+  // Stück für Stück abspielen. Zwischen den Stücken pausiert die Aufnahme, so entsteht beim Springen kein Standbild.
+  const cl = st.clips, total = cl.reduce((a, c) => a + (c.e - c.s) / c.sp, 0);
+  const cd = () => ec && isFinite(ec.duration) ? ec.duration : Infinity;
+  let done = 0;
+  // Nie ewig warten: ohne Klick auf der Seite lässt Chrome den Ton manchmal nicht an
+  await Promise.race([ac.resume(), new Promise(r => setTimeout(r, 1500))]);
+  for (let i = 0; i < cl.length && !EX.cancel; i++) {
+    const c = cl[i];
+    ev.currentTime = c.s; await once(ev, 'seeked', 4000);
+    if (ec) { ec.currentTime = Math.min(c.s, cd()); await once(ec, 'seeked', 4000); }
+    ev.playbackRate = c.sp; if (ec) ec.playbackRate = c.sp;
+    drawFrame(ctx, W, H, st, ev, ec);
+    if (i === 0) rec.start(1000); else rec.resume();
+    try { await ev.play(); } catch (e) { EX.cancel = true; toast('Der Browser hat das Abspielen blockiert. Klick einmal irgendwo ins Fenster und versuch es nochmal.', 6000); }
+    if (ec && c.s < cd()) ec.play().catch(() => {});
+    await new Promise(res => {
+      const step = () => {
+        if (EX.cancel) { res(); return; }
+        const t = ev.currentTime;
+        if (ec && t < cd() && Math.abs(ec.currentTime - t) > 0.25) ec.currentTime = t;
+        drawFrame(ctx, W, H, st, ev, ec);
+        const p = clamp((done + (t - c.s) / c.sp) / Math.max(0.01, total), 0, 1);
+        $('#exPct').textContent = Math.floor(p * 100) + ' %'; $('#exBar').style.width = (p * 100) + '%';
+        if (t >= c.e - 0.01 || ev.ended) { res(); return; }
+        if (document.hidden) setTimeout(step, 1000 / fps); else requestAnimationFrame(step);
+      };
+      step();
+    });
+    ev.pause(); if (ec) ec.pause();
+    if (i < cl.length - 1 && rec.state === 'recording') rec.pause();
+    done += (c.e - c.s) / c.sp;
+  }
+  if (rec.state === 'paused') rec.resume();
+  ev.pause(); ec && ec.pause();
+  if (rec.state !== 'inactive') await new Promise(res => { rec.onstop = res; rec.stop(); });
+  stream.getTracks().forEach(t => t.stop());
+  ac.close().catch(() => {});
+  ev.removeAttribute('src'); ev.load(); if (ec) { ec.removeAttribute('src'); ec.load(); }
+  EX.busy = false;
+  if (EX.cancel) { exStep('exSetup'); toast('Export abgebrochen.'); return; }
+  const type = (mime || 'video/webm').split(';')[0];
+  EX.blob = new Blob(chunks, { type });
+  EX.name = slug(S.project.name) + (type.includes('mp4') ? '.mp4' : '.webm');
+  download(EX.blob, EX.name);
+  $('#exDoneInfo').textContent = '„' + EX.name + '“ liegt jetzt in deinem Download-Ordner (' + (EX.blob.size / 1048576).toFixed(1).replace('.', ',') + ' MB).';
+  exStep('exDone');
+}
+function exportPng() {
+  const [W, H] = outSize(S.st.aspect, EX.short);
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  drawFrame(c.getContext('2d'), W, H, S.st, S.sv, S.cv);
+  c.toBlob(b => { if (b) download(b, slug(S.project.name) + '-' + fmt(S.sv.currentTime).replace(':', '-') + '.png'); }, 'image/png');
+}
+function bindExport() {
+  $('#exGo').onclick = runExport;
+  $('#exCancel').onclick = closeExport;
+  $('#exStop').onclick = () => { EX.cancel = true; };
+  $('#exPng').onclick = exportPng;
+  $('#exAgain').onclick = () => EX.blob && download(EX.blob, EX.name);
+  $('#exClose').onclick = closeExport;
+  $('#exModal').onclick = e => { if (e.target === $('#exModal')) closeExport(); };
+}
+
+/* =========================================================================
+   Tastatur und Start
+   ========================================================================= */
+document.addEventListener('keydown', e => {
+  const tag = (e.target.tagName || '').toLowerCase();
+  const typing = tag === 'input' && !['range', 'button', 'checkbox', 'color', 'file'].includes(e.target.type) || tag === 'select' || tag === 'textarea';
+  const mod = e.metaKey || e.ctrlKey;
+  if (e.key === 'Escape' && !$('#exModal').hidden) { closeExport(); return; }
+  if (typing) return;
+  if (S.view === 'home' && !mod && (e.key === 'r' || e.key === 'R') && $('#ckModal').hidden) { e.preventDefault(); openCheck(); return; }
+  if (S.view !== 'edit' || !$('#exModal').hidden) return;
+  if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
+  if (mod && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); return; }
+  if (mod && e.key.toLowerCase() === 'e') { e.preventDefault(); openExport(); return; }
+  if (mod) return;
+  if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); seek(outNow() - (e.shiftKey ? 5 : 1)); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); seek(outNow() + (e.shiftKey ? 5 : 1)); }
+  else if (e.key === 's' || e.key === 'S') { e.preventDefault(); splitAt(); }
+  else if (e.key === 'Backspace' || e.key === 'Delete') { e.preventDefault(); S.selMask != null ? deleteMask() : S.selZoom != null ? deleteZoom() : deleteSel(); }
+  else if (e.key === 'z' || e.key === 'Z') { e.preventDefault(); addZoom(); }
+  else if (e.key === '[') setEdge('l');
+  else if (e.key === ']') setEdge('r');
+});
+window.addEventListener('beforeunload', e => { if (R && R.started) { e.preventDefault(); e.returnValue = ''; } });
+
+$('#pauseBtn').onclick = togglePause;
+$('#stopBtn').onclick = () => stopRecording(true);
+$('#discardBtn').onclick = () => { if (confirm('Aufnahme wirklich verwerfen?')) stopRecording(false); };
+$('#pipBtn').onclick = () => openPip(false);
+
+bindHome(); bindEditor(); bindExport();
+renderPrefs();
+showView('home');
+requestAnimationFrame(loop);
+if (document.fonts) document.fonts.ready.then(() => { S.dirty = true; });
+
+// Für Tests: ScreenRecorder.importBlob(blob, name)
+window.ScreenRecorder = { importBlob, createProject, openProject, state: S };
+</script>
+</body>
+</html>
