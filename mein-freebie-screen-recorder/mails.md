@@ -82,13 +82,13 @@ Dein Willi
 
 Hi {{Vorname}},
 
-mit dem Willis Screen Recorder hast du jetzt das Werkzeug. Fast alle Affiliates posten ihren Link und hoffen, dass irgendwer klickt. Ich mache das seit Jahren anders: Mein Weg lief nie über den Link, sondern über das, was ich den Leuten vorher gebe. So wie dieses Tool.
+mit dem Willis Screen Recorder hast du jetzt das Werkzeug. Fast alle Affiliates posten ihren Link und hoffen, dass irgendwer klickt. Besser klappt es, wenn du den Leuten vorher etwas Wertvolles gibst. So wie dieses Tool.
 
-Genau das bekommst du im **Affiliate-Marketing Club** jeden Monat fertig für dich:
+Genau so etwas bekommst du im **Affiliate-Marketing Club** jeden Monat fertig für dich:
 
 - Jeden Monat einen neuen Drop wie diesen Screen Recorder, mit dem du dich von anderen abhebst
 - Den Grundlagenkurs für deinen Start, dazu Infos zu aktuellen Launches
-- Austausch mit anderen Affiliates, meine besten Tipps und den direkten Draht zu mir
+- Austausch mit anderen Affiliates, Praxis-Tipps und den direkten Draht zum Gründer des Clubs
 
 👉 **[Hier schaust du dir den Affiliate-Marketing Club an](https://www.skool.com/affiliate-marketing-club-7505/about?ref=9b27135ff6dc4eb6ab698da6ba3bca15)***
 
