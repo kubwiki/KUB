@@ -77,22 +77,22 @@ Dein Willi
 
 ## Mail 4: Tag 6 (Empfehlung)
 
-**Betreff:** Der nächste Schritt: online dazuverdienen
-**Vorschautext:** Wo ich Einsteigern Schritt für Schritt zeige, wie es geht
+**Betreff:** Warum ich es anders mache als fast alle Affiliates
+**Vorschautext:** Jeden Monat ein Drop, um den dich andere beneiden
 
 Hi {{Vorname}},
 
-mit dem Willis Screen Recorder hast du jetzt das Werkzeug. Was vielen dann noch fehlt, ist ein klarer Plan, wie man damit online etwas dazuverdient, und Menschen, die einem dabei helfen.
+mit dem Willis Screen Recorder hast du jetzt das Werkzeug. Fast alle Affiliates posten ihren Link und hoffen, dass irgendwer klickt. Ich mache das seit Jahren anders: Mein Weg lief nie über den Link, sondern über das, was ich den Leuten vorher gebe. So wie dieses Tool.
 
-Genau dafür gibt es **den Affiliate-Marketing Club**:
+Genau das bekommst du im **Affiliate-Marketing Club** jeden Monat fertig für dich:
 
-- [[NUTZEN 1]]
-- [[NUTZEN 2]]
-- [[NUTZEN 3]]
+- Jeden Monat einen neuen Drop wie diesen Screen Recorder, mit dem du dich von anderen abhebst
+- Den Grundlagenkurs für deinen Start, dazu Infos zu aktuellen Launches
+- Austausch mit anderen Affiliates, meine besten Tipps und den direkten Draht zu mir
 
 👉 **[Hier schaust du dir den Affiliate-Marketing Club an](https://www.skool.com/affiliate-marketing-club-7505/about?ref=9b27135ff6dc4eb6ab698da6ba3bca15)***
 
-[[EHRLICHER SATZ: Für wen es passt und für wen nicht.]]
+Für die ersten 100 Mitglieder kostet der Club 9 $ im Monat, und der Preis bleibt, solange du dabei bist. Er ist monatlich kündbar. Ehrlich gesagt: Er passt zu dir, wenn du online etwas aufbauen willst und bereit bist, ein bisschen dranzubleiben. Du brauchst dafür Claude Pro. Wenn du nur schnell nebenbei ohne eigenes Zutun Geld verdienen willst, ist er nichts für dich.
 
 Dein Willi
 
