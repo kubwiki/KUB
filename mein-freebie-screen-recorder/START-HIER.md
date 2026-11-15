@@ -36,6 +36,3 @@ Leg in Quentn eine Automatisierung an, die startet, sobald jemand bestätigt hat
 
 ## ☐ Schritt 7: Komplett-Test
 Trag dich mit einer zweiten E-Mail-Adresse selbst ein, bestätige, lade das Tool herunter und öffne es. Kommt alles an, ist dein Freebie live. 🎉
-
-## ☐ Schritt 8: Instagram
-Richte die Automatisierung aus `manychat.md` in ManyChat ein (Stichwort **RECORDER**). Der Link in der DM führt auf deine Opt-in-Seite, nicht direkt zum Download. Ergänze deine Datenschutzerklärung um ManyChat und Instagram. Sag dafür Claude einfach: "Ergänze ManyChat in meiner Datenschutzerklärung."
