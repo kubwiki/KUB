@@ -1,0 +1,21 @@
+[[TOOLNAME]] von [[DEIN NAME]]
+
+So startest du
+1. Entpack diesen Ordner, zum Beispiel auf deinen Schreibtisch.
+2. Öffne die Datei [[TOOLDATEI]] mit Chrome, Edge oder Brave.
+   Öffnet sie sich in Safari: Rechtsklick auf die Datei, "Öffnen mit", Google Chrome.
+3. Wähl aus, was du aufnehmen willst, schalte Mikrofon und Kamera ein, wenn du sie brauchst, und klick auf "Aufnahme starten".
+   Ein kurzer Check zeigt dir, ob Kamera und Mikrofon bereit sind. Mit "Aufnahme starten" fragt Chrome dann, was du teilen willst.
+4. Zum Beenden kommst du zurück in den Tab und klickst auf "Stopp und bearbeiten". Lieber ein kleines Fenster mit Stopp-Knopf über allen Programmen? Schalte im Check die "Schwebende Steuerung" ein. Jetzt kannst du schneiden, zoomen, einrahmen und als MP4 speichern.
+
+Beim ersten Mal auf dem Mac
+Dein Mac fragt einmal nach der Erlaubnis für die Bildschirmaufnahme: Systemeinstellungen, Datenschutz und Sicherheit, Bildschirm- und Systemaudioaufnahme. Schalte dort deinen Browser ein und starte ihn neu.
+
+Gut zu wissen
+- Kein Programm, keine Installation, kein Konto. Das Tool öffnet sich einfach in deinem Browser.
+- Deine Aufnahmen bleiben auf deinem Rechner. Es wird nichts hochgeladen.
+- Gespeichert wird im Browser. Exportier alles, was du behalten willst, als MP4.
+- Am Handy geht es nicht, weil Handy-Browser den Bildschirm nicht aufnehmen können.
+- Wenn du Gespräche oder andere Personen aufnimmst, frag sie bitte vorher.
+
+Das Tool ist kostenlos und wird ohne Gewähr bereitgestellt. Die Nutzung erfolgt auf eigenes Risiko. Eine Haftung wird nicht übernommen.
