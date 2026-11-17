@@ -8,7 +8,7 @@ description: "Split-Reel - macht aus einem Querformat-Video, in dem jemand etwas
 Macht aus einem Querformat-Redevideo ein Hochformat-Reel im Magazin-Look: oben grosse Typografie, Fotos und Stempel zum Gesagten, in der Mitte die Untertitel, unten das Video als Karte. Alles laeuft auf dem Rechner des Nutzers mit kostenlosen Werkzeugen, ohne KI-Generierung, ohne Credits, ohne Upload. Du sprichst mit dem Nutzer in Alltagssprache (Deutsch, per Du, kurz, keine Fachbegriffe).
 
 ```
-SR=.claude/skills/split-reel               # Ordner dieses Skills (im Projekt; bei globaler Installation ~/.claude/skills/split-reel)
+SR=~/.claude/skills/split-reel             # Ordner dieses Skills
 PY=~/.hollywood-cut/venv/bin/python        # Python-Umgebung (legt setup.sh an; geteilt mit dem Skill Hollywood Cut, falls vorhanden)
 ```
 
