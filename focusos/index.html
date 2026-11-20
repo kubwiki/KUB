@@ -194,6 +194,7 @@
     .plan li { display: flex; gap: 10px; align-items: flex-start; }
     .plan li svg { flex: none; width: 18px; height: 18px; margin-top: 3px; color: var(--success); }
     .plan .btn { margin-top: auto; width: 100%; }
+    .plan-note { text-align: center; font-size: .84rem; color: var(--text-muted) !important; margin: 12px 0 0 !important; }
 
     /* FAQ */
     .faq { max-width: 780px; margin: 0 auto; }
@@ -255,7 +256,7 @@
       </a>
       <div class="nav-links">
         <a href="#funktionen">Funktionen</a>
-        <a href="#so-funktionierts">So funktioniert's</a>
+        <a href="#module">Module</a>
         <a href="#preise">Preise</a>
         <a href="#faq">FAQ</a>
       </div>
@@ -263,8 +264,8 @@
         <button class="btn btn-ghost theme-toggle" id="themeToggle" type="button" aria-label="Farbschema wechseln">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
         </button>
-        <a href="#kontakt" class="btn btn-ghost hide-sm">Anmelden</a>
-        <a href="#preise" class="btn btn-primary">Kostenlos starten</a>
+        <a href="https://mitglied.ai-academy24.info/master-key-point" class="btn btn-ghost hide-sm">Login</a>
+        <a href="#preise" class="btn btn-primary">Jetzt starten</a>
         <button class="btn btn-ghost theme-toggle menu-toggle" id="menuToggle" type="button" aria-label="Menü öffnen" aria-expanded="false" aria-controls="mobileMenu">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
@@ -272,7 +273,7 @@
     </nav>
     <div class="mobile-menu" id="mobileMenu">
       <a href="#funktionen">Funktionen</a>
-      <a href="#so-funktionierts">So funktioniert's</a>
+      <a href="#module">Module</a>
       <a href="#preise">Preise</a>
       <a href="#faq">FAQ</a>
       <a href="#kontakt">Kontakt</a>
@@ -286,16 +287,16 @@
   <section class="hero">
     <div class="container">
       <div class="hero-inner">
-        <span class="eyebrow">● Neu: Fokus-Analysen für Teams</span>
+        <span class="eyebrow">● Neu: FocusOS mit 7 Modulen</span>
         <h1>Konzentriert arbeiten.<br>Mehr erreichen.</h1>
         <p class="lead">FocusOS bündelt Aufgaben, Fokuszeiten und Ziele in einem ruhigen, aufgeräumten System – damit Sie sich jeden Tag auf das konzentrieren, was wirklich zählt.</p>
         <div class="hero-cta">
-          <a href="#preise" class="btn btn-primary">14 Tage kostenlos testen
+          <a href="#preise" class="btn btn-primary">Pakete ansehen
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </a>
-          <a href="#so-funktionierts" class="btn btn-ghost">So funktioniert's</a>
+          <a href="#module" class="btn btn-ghost">Die 7 Module</a>
         </div>
-        <p class="hero-note">Keine Kreditkarte erforderlich · DSGVO-konform · Server in Deutschland</p>
+        <p class="hero-note">Ab 7 € · Einmalzahlung, kein Abo · Sofortiger Zugang</p>
       </div>
 
       <div class="mockup reveal" aria-hidden="true">
@@ -446,53 +447,118 @@
     </div>
   </section>
 
+  <!-- MODULES -->
+  <section id="module">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Die Module</span>
+        <h2>7 Module für Ihr persönliches Fokus-System</h2>
+        <p>Jedes Modul baut auf dem vorherigen auf – Schritt für Schritt zu einem Arbeitsalltag mit mehr Klarheit und weniger Stress.</p>
+      </div>
+      <div class="grid-3">
+        <article class="card reveal">
+          <div class="step-num">1</div>
+          <h3>Modul 1 – Aufgabenmanagement</h3>
+          <p>Alle Aufgaben an einem Ort erfassen, sortieren und im Griff behalten.</p>
+        </article>
+        <article class="card reveal">
+          <div class="step-num">2</div>
+          <h3>Modul 2 – Priorisierung</h3>
+          <p>Das Wichtige vom Dringenden trennen – mit einem klaren Entscheidungssystem.</p>
+        </article>
+        <article class="card reveal">
+          <div class="step-num">3</div>
+          <h3>Modul 3 – Fokus System</h3>
+          <p>Tiefe Arbeitsphasen planen und Ablenkungen konsequent ausschalten.</p>
+        </article>
+        <article class="card reveal">
+          <div class="step-num">4</div>
+          <h3>Modul 4 – Zeitmanagement</h3>
+          <p>Realistisch planen, Puffer einbauen und Termine souverän steuern.</p>
+        </article>
+        <article class="card reveal">
+          <div class="step-num">5</div>
+          <h3>Modul 5 – Energie Management</h3>
+          <p>Arbeiten im Einklang mit Ihrem Energielevel statt gegen die Uhr.</p>
+        </article>
+        <article class="card reveal">
+          <div class="step-num">6</div>
+          <h3>Modul 6 – Dashboard Setup</h3>
+          <p>Ihr persönliches Produktivitäts-Dashboard Schritt für Schritt einrichten.</p>
+        </article>
+        <article class="card reveal">
+          <div class="step-num">7</div>
+          <h3>Modul 7 – Wochenplanung</h3>
+          <p>Mit einem festen Wochenritual Ziele setzen und Fortschritt reflektieren.</p>
+        </article>
+        <article class="card reveal" style="background:var(--primary-soft);border-color:transparent">
+          <div class="step-num">+2</div>
+          <h3>Bonus-Inhalte</h3>
+          <p>KI-Prompt-Bibliothek und Produktivitäts-Dashboard – exklusiv im Komplettpaket.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
   <!-- PRICING -->
   <section id="preise" class="alt">
     <div class="container">
       <div class="section-head reveal">
-        <span class="eyebrow">Preise</span>
-        <h2>Transparent und fair</h2>
-        <p>Starten Sie kostenlos. Upgraden Sie, wenn Sie bereit sind. Monatlich kündbar.</p>
+        <span class="eyebrow">Pakete</span>
+        <h2>Wählen Sie Ihr Paket</h2>
+        <p>Einmal zahlen, dauerhaft nutzen. Nach dem Kauf wird Ihr Zugang automatisch freigeschaltet.</p>
       </div>
       <div class="pricing">
         <div class="card plan reveal">
-          <h3>Starter</h3>
-          <p>Für den persönlichen Einstieg.</p>
-          <div class="price">0 €<small> / Monat</small></div>
+          <h3>Starter-Kit</h3>
+          <p>Die wichtigsten Vorlagen für den schnellen Start.</p>
+          <div class="price">7 €<small> einmalig</small></div>
           <ul>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Fokus-Sessions &amp; Timer</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Tägliche Prioritäten</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>1 Kalender-Integration</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Tagesplan Template</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Fokus Tracker</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Prioritäten System</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Aufgaben Vorlage</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>5 KI-Prompts</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Bonus: 10-Minuten-Fokus-Audio</li>
           </ul>
-          <a href="#kontakt" class="btn btn-ghost">Kostenlos starten</a>
+          <a href="#DIGISTORE-LINK-STARTER" class="btn btn-ghost" data-product="starter">Jetzt herunterladen</a>
+          <p class="plan-note">Sofort-Download</p>
         </div>
         <div class="card plan featured reveal">
           <span class="badge">Beliebteste Wahl</span>
-          <h3>Pro</h3>
-          <p>Für Professionals mit vollem Kalender.</p>
-          <div class="price">9 €<small> / Monat</small></div>
+          <h3>FocusOS Komplett</h3>
+          <p>Das vollständige System – 7 Module und 2 Boni.</p>
+          <div class="price">49 €<small> einmalig</small></div>
           <ul>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Alles aus Starter</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Ziele &amp; Meilensteine</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Unbegrenzte Integrationen</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Wochenberichte &amp; Analysen</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Modul 1 – Aufgabenmanagement</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Modul 2 – Priorisierung</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Modul 3 – Fokus System</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Modul 4 – Zeitmanagement</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Modul 5 – Energie Management</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Modul 6 – Dashboard Setup</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Modul 7 – Wochenplanung</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Bonus: KI-Prompt-Bibliothek</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Bonus: Produktivitäts-Dashboard</li>
           </ul>
-          <a href="#kontakt" class="btn btn-primary">14 Tage testen</a>
+          <a href="#DIGISTORE-LINK-KOMPLETT" class="btn btn-primary" data-product="komplett">FocusOS starten</a>
+          <p class="plan-note">7 Module · 2 Boni · lebenslanger Zugang</p>
         </div>
         <div class="card plan reveal">
-          <h3>Team</h3>
-          <p>Für Teams und Unternehmen.</p>
-          <div class="price">19 €<small> / Nutzer / Monat</small></div>
+          <h3>FocusOS Pro</h3>
+          <p>Für Fortgeschrittene, die automatisieren wollen.</p>
+          <div class="price">149 €<small> einmalig</small></div>
           <ul>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Alles aus Pro</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Team-Fokuszeiten</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Admin &amp; SSO</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>AV-Vertrag &amp; Priority-Support</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Automatisierte Aufgaben- und Review-Flows</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Vorlagen für wiederkehrende Routinen</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Dashboard-Erweiterung für Kennzahlen</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Prompt-Paket für Planung und Reflexion</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>Setup-Anleitung Schritt für Schritt</li>
           </ul>
-          <a href="#kontakt" class="btn btn-ghost">Vertrieb kontaktieren</a>
+          <a href="#DIGISTORE-LINK-PRO" class="btn btn-ghost" data-product="pro">Details anfragen</a>
+          <p class="plan-note">Für Fortgeschrittene</p>
         </div>
       </div>
-      <p class="muted" style="text-align:center;margin-top:28px;font-size:.88rem">Alle Preise zzgl. gesetzl. MwSt. Jährliche Zahlung spart 20 %.</p>
+      <p class="muted" style="text-align:center;margin-top:28px;font-size:.88rem">Sichere Bezahlung über Digistore24 · Einmalzahlung, kein Abo · Zugang sofort nach Zahlung im Mitgliederbereich. <a href="https://mitglied.ai-academy24.info/master-key-point" style="text-decoration:underline">Bereits gekauft? Hier einloggen</a></p>
     </div>
   </section>
 
@@ -509,12 +575,20 @@
           <p>Für alle, die anspruchsvolle Wissensarbeit leisten – Selbstständige, Führungskräfte, Entwickler, Kreative und Teams, die weniger reagieren und mehr gestalten wollen.</p>
         </details>
         <details>
+          <summary>Wie erhalte ich nach dem Kauf Zugang?</summary>
+          <p>Direkt nach der Zahlung über Digistore24 wird Ihr Zugang im Mitgliederbereich automatisch freigeschaltet. Die Zugangsdaten erhalten Sie per E-Mail.</p>
+        </details>
+        <details>
+          <summary>Kann ich später vom Starter-Kit auf das Komplettpaket wechseln?</summary>
+          <p>Ja. Sie können jederzeit ein größeres Paket erwerben – Ihre bisherigen Inhalte bleiben erhalten.</p>
+        </details>
+        <details>
           <summary>Wo werden meine Daten gespeichert?</summary>
           <p>Ausschließlich in ISO-27001-zertifizierten Rechenzentren in Deutschland. Wir verkaufen keine Daten und setzen keine Tracking-Cookies von Drittanbietern ein.</p>
         </details>
         <details>
-          <summary>Kann ich jederzeit kündigen?</summary>
-          <p>Ja. Monatliche Tarife sind jederzeit zum Ende des Abrechnungszeitraums kündbar – mit einem Klick in den Einstellungen.</p>
+          <summary>Ist das ein Abo?</summary>
+          <p>Nein. Alle Pakete sind Einmalzahlungen. Sie zahlen einmal über Digistore24 und behalten den Zugang dauerhaft.</p>
         </details>
         <details>
           <summary>Welche Tools lassen sich integrieren?</summary>
@@ -533,11 +607,11 @@
     <div class="container">
       <div class="cta-box reveal">
         <h2>Bereit für mehr Fokus?</h2>
-        <p>Tragen Sie Ihre E-Mail-Adresse ein und erhalten Sie Ihren persönlichen Zugang – 14 Tage kostenlos und unverbindlich.</p>
+        <p>Haben Sie Fragen zu den Paketen? Hinterlassen Sie Ihre E-Mail-Adresse – wir melden uns persönlich bei Ihnen.</p>
         <form class="cta-form" id="signupForm" novalidate>
           <label for="email" class="sr-only" style="position:absolute;left:-9999px">E-Mail-Adresse</label>
           <input id="email" name="email" type="email" placeholder="ihre@email.de" autocomplete="email" required>
-          <button type="submit" class="btn">Zugang anfordern</button>
+          <button type="submit" class="btn">Rückruf anfordern</button>
         </form>
         <div class="form-msg" id="formMsg" role="status" aria-live="polite"></div>
         <p class="cta-small">Mit dem Absenden stimmen Sie unserer <a href="#datenschutz">Datenschutzerklärung</a> zu.</p>
@@ -561,7 +635,9 @@
         <h5>Produkt</h5>
         <ul>
           <li><a href="#funktionen">Funktionen</a></li>
-          <li><a href="#preise">Preise</a></li>
+          <li><a href="#module">Module</a></li>
+          <li><a href="#preise">Pakete</a></li>
+          <li><a href="https://mitglied.ai-academy24.info/master-key-point">Mitglieder-Login</a></li>
           <li><a href="#faq">FAQ</a></li>
         </ul>
       </div>
